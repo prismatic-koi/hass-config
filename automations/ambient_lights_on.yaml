@@ -13,6 +13,12 @@
       brightness_pct: 75
       transition: 60
       color_temp_kelvin: 2762
+  - service: light.turn_on
+    target:
+      entity_id: '{{ brightlights }}'
+    data:
+      brightness_pct: 20
+      transition: 2
   - service: switch.turn_on
     target:
       entity_id: '{{ switches }}'
@@ -25,6 +31,8 @@
     - light.tv_backlight
     - light.plant_backlight
     - light.desk_lightstrip
+    brightlights:
+    - light.hall_lightstrip
     switches:
     - switch.lounge_big_lamp
     - switch.lounge_small_lamp

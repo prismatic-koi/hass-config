@@ -21,6 +21,9 @@
               states('switch.lounge_big_lamp') == 'off' and
               states('switch.lounge_small_lamp') == 'off'
             }}
+  - service: light.turn_off
+    target:
+      entity_id: '{{ brightlights }}'
   - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
     target:
       entity_id: input_boolean.ambient_lights_active
@@ -30,6 +33,8 @@
     - light.tv_backlight
     - light.plant_backlight
     - light.desk_lightstrip
+    brightlights:
+    - light.hall_lightstrip
     switches:
     - switch.lounge_big_lamp
     - switch.lounge_small_lamp
