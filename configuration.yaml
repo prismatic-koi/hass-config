@@ -31,16 +31,15 @@ api:
 
 
 # sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
-sensor:
-- platform: template
-  sensors:
-    wake_up_lights_time_ends:
-      friendly_name: 'Lights Timer'
-      icon_template: mdi:alarm-off
-      value_template: >
-        {{ (((state_attr('input_datetime.wake_up_lights_set_time' , 'timestamp'))
-        + ((states('input_number.wake_up_lights_fade_minutes') | int * 60)
-        + states('input_number.wake_up_lights_minutes') | int * 60))|timestamp_custom('%H:%M', false)) }}
+template:
+  - sensor:
+      - name: 'Lights Timer'
+        unique_id: wake_up_lights_time_ends
+        icon: mdi:alarm-off
+        state: >
+          {{ (((state_attr('input_datetime.wake_up_lights_set_time' , 'timestamp'))
+          + ((states('input_number.wake_up_lights_fade_minutes') | int * 60)
+          + states('input_number.wake_up_lights_minutes') | int * 60))|timestamp_custom('%H:%M', false)) }}
 
 
 
