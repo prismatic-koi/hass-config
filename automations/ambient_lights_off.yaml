@@ -2,39 +2,40 @@
   alias: Ambient Lights off
   description: Turn off ambient lights at preset time
   trigger:
-  - platform: time
-    at: input_datetime.ambient_lights_off
+    - platform: time
+      at: input_datetime.ambient_lights_off
   action:
-  - service: light.turn_off
-    target:
-      entity_id: '{{ lights }}'
-  - repeat:
-      count: 3
-      sequence:
-        - service: switch.turn_off
-          target:
-            entity_id: '{{ switches }}'
-        - delay: "00:00:05"
-        - condition: template
-          value_template: >
-            {{
-              states('switch.lounge_big_lamp') == 'off' and
-              states('switch.lounge_small_lamp') == 'off'
-            }}
-  - service: light.turn_off
-    target:
-      entity_id: '{{ brightlights }}'
-  - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
-    target:
-      entity_id: input_boolean.ambient_lights_active
+    - service: light.turn_off
+      target:
+        entity_id: "{{ lights }}"
+    - repeat:
+        count: 3
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: "{{ switches }}"
+          - delay: "00:00:05"
+          - condition: template
+            value_template: >
+              {{
+                states('switch.lounge_big_lamp') == 'off' and
+                states('switch.lounge_small_lamp') == 'off'
+              }}
+    - service: light.turn_off
+      target:
+        entity_id: "{{ brightlights }}"
+    - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
+      target:
+        entity_id: input_boolean.ambient_lights_active
   variables:
     lights:
-    - light.kitchen_lightstrip
-    - light.tv_backlight
-    - light.plant_backlight
-    - light.desk_lightstrip
+      - light.kitchen_lightstrip
+      - light.tv_backlight
+      - light.plant_backlight
+      - light.desk_lightstrip
     brightlights:
-    - light.hall_lightstrip
+      - light.hall_lightstrip
     switches:
-    - switch.lounge_big_lamp
-    - switch.lounge_small_lamp
+      - switch.lounge_big_lamp
+      - switch.lounge_small_lamp
+      - switch.lounge_heater # repurposed for xmas lights Dec 2025
