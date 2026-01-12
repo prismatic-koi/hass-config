@@ -36,3 +36,4 @@
     switches:
       - switch.lounge_big_lamp
       - switch.lounge_small_lamp
+      - switch.office_desk_lamp
