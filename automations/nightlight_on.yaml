@@ -4,6 +4,9 @@
   trigger:
   - platform: time
     at: input_datetime.nightlight_on
+  variables:
+    entities:
+    - light.nightlight
   action:
   - service: light.turn_on
     target:
@@ -11,6 +14,3 @@
     data:
       brightness_pct: 75
       transition: 60
-  variables:
-    entities:
-    - light.nightlight

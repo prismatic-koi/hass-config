@@ -56,21 +56,22 @@
       - condition: state
         entity_id: input_boolean.wake_up_lights_sundays
         state: 'on'
-  action:
-  - service: light.turn_on
-    data:
-      brightness_pct: 100
-      color_temp: 400
-      transition: '{{ transition }}'
-      entity_id: '{{ entities }}'
-  - delay:
-      minutes: '{{ (states(''input_number.wake_up_lights_fade_minutes'') | int) +
-        (states(''input_number.wake_up_lights_minutes'') | int) }}'
-  - service: light.turn_off
-    data:
-      entity_id: '{{ entities }}'
   variables:
     entities: light.nightlight
     transition: '{{ states(''input_number.wake_up_lights_fade_minutes'') | int * 60
       }}'
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: '{{ entities }}'
+    data:
+      brightness_pct: 100
+      color_temp: 400
+      transition: '{{ transition }}'
+  - delay:
+      minutes: '{{ (states(''input_number.wake_up_lights_fade_minutes'') | int) +
+        (states(''input_number.wake_up_lights_minutes'') | int) }}'
+  - service: light.turn_off
+    target:
+      entity_id: '{{ entities }}'
   initial_state: true

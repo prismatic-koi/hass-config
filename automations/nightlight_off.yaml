@@ -4,10 +4,10 @@
   trigger:
   - platform: time
     at: input_datetime.nightlight_off
+  variables:
+    entities:
+    - light.nightlight
   action:
   - service: light.turn_off
     target:
       entity_id: '{{ entities }}'
-  variables:
-    entities:
-    - light.nightlight
