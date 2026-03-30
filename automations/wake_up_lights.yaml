@@ -66,7 +66,7 @@
       entity_id: '{{ entities }}'
     data:
       brightness_pct: 100
-      color_temp: 400
+      color_temp_kelvin: 2500
       transition: '{{ transition }}'
   - delay:
       minutes: '{{ (states(''input_number.wake_up_lights_fade_minutes'') | int) +
