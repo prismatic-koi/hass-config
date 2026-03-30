@@ -69,8 +69,8 @@
       color_temp_kelvin: 2500
       transition: '{{ transition }}'
   - delay:
-      minutes: '{{ (states(''input_number.wake_up_lights_fade_minutes'') | int(0)) +
-        (states(''input_number.wake_up_lights_minutes'') | int(0)) }}'
+      minutes: '{{ [(states(''input_number.wake_up_lights_fade_minutes'') | int(0)) +
+        (states(''input_number.wake_up_lights_minutes'') | int(0)), 1] | max }}'
   - service: light.turn_off
     target:
       entity_id: '{{ entities }}'
