@@ -13,7 +13,7 @@
         entity_id: input_boolean.blinds_lounge_temperature_protection_enable
         state: 'on'
       - condition: template
-        value_template: "{{ (as_timestamp(now()) - as_timestamp(states.cover.lounge_blinds.last_changed)) > (states.input_datetime.lounge_temp_protection_buffer_time.attributes['timestamp']) }}"
+        value_template: "{{ (as_timestamp(now()) - as_timestamp(states.cover.lounge_blinds.last_changed)) > state_attr('input_datetime.lounge_temp_protection_buffer_time', 'timestamp') }}"
   action:
   - device_id: 4e5cf1c36681f9f030dc97557820c0fd
     domain: cover

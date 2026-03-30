@@ -8,7 +8,7 @@
   - service: switch.turn_on
     target:
       entity_id: switch.hydro_pump
-  - delay: '{{ states(''input_number.hydro_pump_duration_1'') | int * 60 }}'
+  - delay: '{{ states(''input_number.hydro_pump_duration_1'') | int(0) * 60 }}'
   - service: switch.turn_off
     target:
       entity_id: switch.hydro_pump
@@ -22,7 +22,7 @@
   - service: switch.turn_on
     target:
       entity_id: switch.hydro_pump
-  - delay: '{{ states(''input_number.hydro_pump_duration_2'') | int * 60 }}'
+  - delay: '{{ states(''input_number.hydro_pump_duration_2'') | int(0) * 60 }}'
   - service: switch.turn_off
     target:
       entity_id: switch.hydro_pump
