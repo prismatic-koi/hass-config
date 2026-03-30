@@ -34,7 +34,7 @@
       entity_id: binary_sensor.hall_sensor_near_occupancy
       from: 'on'
       to: 'off'
-  - delay: '{{ states(''input_number.hallway_motion_timeout'') | int * 60 }}'
+  - delay: '{{ states(''input_number.hallway_motion_timeout'') | int(0) * 60 }}'
   - service: light.turn_off
     target:
       entity_id: '{{ lights }}'

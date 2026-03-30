@@ -38,8 +38,8 @@ template:
         icon: mdi:alarm-off
         state: >
           {{ (((state_attr('input_datetime.wake_up_lights_set_time' , 'timestamp'))
-          + ((states('input_number.wake_up_lights_fade_minutes') | int * 60)
-          + states('input_number.wake_up_lights_minutes') | int * 60))|timestamp_custom('%H:%M', false)) }}
+          + ((states('input_number.wake_up_lights_fade_minutes') | int(0) * 60)
+          + states('input_number.wake_up_lights_minutes') | int(0) * 60))|timestamp_custom('%H:%M', false)) }}
 
 
 
