@@ -107,11 +107,11 @@ One Dark Theme:
   ha-switch-checked-background-color: var(--switch-checked-track-color)
   ha-switch-checked-thumb-background-color: var(--switch-checked-button-color)
   ha-switch-background-color: var(--switch-unchecked-track-color)
-  ha-switch-thumb-background-color: var(--switch-unchecked-button-color)
+  ha-switch-thumb-background-color: var(--white)
   ha-switch-checked-border-color: var(--switch-checked-track-color)
   ha-switch-checked-thumb-border-color: var(--switch-checked-button-color)
   ha-switch-border-color: var(--switch-unchecked-track-color)
-  ha-switch-thumb-border-color: var(--switch-unchecked-button-color)
+  ha-switch-thumb-border-color: var(--white)
   # Table
   table-row-background-color: var(--primary-background-color)
   table-row-alternative-background-color: var(--secondary-background-color)
