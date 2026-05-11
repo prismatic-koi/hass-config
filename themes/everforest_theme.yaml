@@ -103,6 +103,16 @@ Everforest Theme:
   paper-toggle-button-checked-bar-color: var(--switch-checked-track-color)
   paper-toggle-button-unchecked-button-color: var(--switch-unchecked-button-color)
   paper-toggle-button-unchecked-bar-color: var(--switch-unchecked-track-color)
+
+  # New ha-switch (webawesome) variables
+  ha-switch-checked-background-color: var(--switch-checked-track-color)
+  ha-switch-checked-thumb-background-color: var(--switch-checked-button-color)
+  ha-switch-background-color: var(--switch-unchecked-track-color)
+  ha-switch-thumb-background-color: var(--switch-unchecked-button-color)
+  ha-switch-checked-border-color: var(--switch-checked-track-color)
+  ha-switch-checked-thumb-border-color: var(--switch-checked-button-color)
+  ha-switch-border-color: var(--switch-unchecked-track-color)
+  ha-switch-thumb-border-color: var(--switch-unchecked-button-color)
   # Table
   table-row-background-color: var(--primary-background-color)
   table-row-alternative-background-color: var(--secondary-background-color)
