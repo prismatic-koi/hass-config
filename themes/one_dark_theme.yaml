@@ -117,8 +117,12 @@ One Dark Theme:
   table-row-alternative-background-color: var(--secondary-background-color)
   data-table-background-color: var(--primary-background-color)
 
-  # Select
+  # Select / Form fields
   mdc-select-fill-color: "#4d515d"
+  # New ha-input / ha-textarea (webawesome) variables
+  ha-color-form-background: var(--mdc-select-fill-color)
+  ha-color-form-background-hover: "#5a5f6e"
+  ha-color-form-background-disabled: var(--black)
   mdc-select-ink-color: var(--primary-text-color)
   mdc-select-label-ink-color: var(--secondary-text-color)
   mdc-select-idle-line-color: var(--primary-text-color)
