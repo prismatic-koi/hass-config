@@ -118,8 +118,12 @@ Everforest Theme:
   table-row-alternative-background-color: var(--secondary-background-color)
   data-table-background-color: var(--primary-background-color)
 
-  # Select
+  # Select / Form fields
   mdc-select-fill-color: "#475258"
+  # New ha-input / ha-textarea (webawesome) variables
+  ha-color-form-background: var(--mdc-select-fill-color)
+  ha-color-form-background-hover: "#56635f"
+  ha-color-form-background-disabled: var(--background-dim)
   mdc-select-ink-color: var(--primary-text-color)
   mdc-select-label-ink-color: var(--secondary-text-color)
   mdc-select-idle-line-color: var(--primary-text-color)
