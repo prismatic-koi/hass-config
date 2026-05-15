@@ -132,6 +132,44 @@ Everforest Theme:
   mdc-text-field-ink-color: var(--primary-text-color)
   mdc-text-field-fill-color: var(--mdc-select-fill-color)
 
+  # WA semantic neutrals
+  # Neutral fills — resting/active = subtle surface tint; hover = one step lighter
+  ha-color-fill-neutral-quiet-resting: var(--background)
+  ha-color-fill-neutral-quiet-hover: var(--bright-black)
+  ha-color-fill-neutral-quiet-active: var(--background)
+  ha-color-fill-neutral-normal-resting: var(--bright-black)
+  ha-color-fill-neutral-normal-hover: "#475258"
+  ha-color-fill-neutral-normal-active: var(--bright-black)
+  ha-color-fill-neutral-loud-resting: "#475258"
+  ha-color-fill-neutral-loud-hover: var(--grey)
+  ha-color-fill-neutral-loud-active: "#475258"
+  # Disabled fills
+  ha-color-fill-disabled-quiet-resting: var(--background-dim)
+  ha-color-fill-disabled-quiet-hover: var(--background)
+  ha-color-fill-disabled-normal-resting: var(--background)
+  ha-color-fill-disabled-normal-hover: var(--bright-black)
+  ha-color-fill-disabled-loud-resting: var(--bright-black)
+  ha-color-fill-disabled-loud-hover: "#475258"
+  # Neutral borders
+  ha-color-border-neutral-quiet: var(--divider-color)
+  ha-color-border-neutral-normal: var(--bright-black)
+  ha-color-border-neutral-loud: var(--grey)
+  # On-neutral text/icon
+  ha-color-on-neutral-quiet: var(--white)
+  ha-color-on-neutral-normal: var(--text)
+  ha-color-on-neutral-loud: var(--text)
+  # Text semantics
+  ha-color-text-primary: var(--primary-text-color)
+  ha-color-text-secondary: var(--secondary-text-color)
+  ha-color-text-disabled: var(--disabled-text-color)
+  ha-color-text-link: var(--primary-color)
+  # Surface semantics
+  ha-color-surface-default: var(--card-background-color)
+  ha-color-surface-low: var(--bright-black)
+  ha-color-surface-lower: var(--background-dim)
+  # Focus ring
+  ha-color-focus: var(--accent-color)
+
   # HACS
   hacs-status-installed: var(--green)
   hacs-status-not-loaded: var(--red)
