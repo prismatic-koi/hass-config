@@ -1,4 +1,3 @@
-
 # Loads default set of integrations. Do not remove.
 default_config:
 
@@ -25,23 +24,19 @@ http:
   trusted_proxies:
     - 10.0.0.0/8
 
-
 # enable api
 api:
-
 
 # sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
 template:
   - sensor:
-      - name: 'Lights Timer'
+      - name: "Lights Timer"
         unique_id: wake_up_lights_time_ends
         icon: mdi:alarm-off
         state: >
           {{ (((state_attr('input_datetime.wake_up_lights_set_time' , 'timestamp'))
           + ((states('input_number.wake_up_lights_fade_minutes') | int(0) * 60)
           + states('input_number.wake_up_lights_minutes') | int(0) * 60))|timestamp_custom('%H:%M', false)) }}
-
-
 
 # database to store history
 recorder:
@@ -61,7 +56,7 @@ zone:
     radius: 50
     icon: mdi:home
   - name: Bens Work
-    latitude: -41.28450641993013
-    longitude: 174.7768270969391
+    latitude: -41.2924976
+    longitude: 174.7782922
     radius: 50
     icon: mdi:map-marker
