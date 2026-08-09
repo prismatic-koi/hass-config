@@ -13,4 +13,12 @@
   - service: notify.notify
     data:
       title: "Snapper Low Balance"
+      # message templates the threshold off trigger.below rather than a
+      # second hardcoded literal, so it can't desync from the trigger above.
+      # Known cosmetic edge case: a manual run (Run button / automation.trigger)
+      # populates trigger with no below key, so trigger.below renders as 0 and
+      # the message reads "below $0" on a manual test only. Accepted; do not
+      # paper over with a default(), which would reintroduce the duplicate
+      # literal this template avoids. Applies to all three snapper low-balance
+      # automations; documented here only.
       message: "Ben Work Snapper card balance is below ${{ trigger.below | int }}."
