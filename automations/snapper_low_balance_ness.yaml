@@ -1,0 +1,16 @@
+- id: snapper_low_balance_ness
+  alias: Snapper Low Balance - Ness
+  description: 'Notify Ness when the Snapper Ness card balance drops below the threshold.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.snapper_ness_balance
+    below: 5
+  condition:
+  - condition: state
+    entity_id: input_boolean.snapper_notify_ness
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: "Snapper Low Balance"
+      message: "Ness Snapper card balance is below $5."

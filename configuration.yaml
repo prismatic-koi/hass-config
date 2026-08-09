@@ -83,16 +83,16 @@ rest:
           {%- endif -%}
         attributes:
           owner: "Ben"
-  - resource: !secret snapper_partner_card
+  - resource: !secret snapper_ness_card
     method: POST
     headers:
       Content-Type: text/plain;charset=UTF-8
       Origin: https://catchy.nz
-    payload: !secret snapper_partner_cvv
+    payload: !secret snapper_ness_cvv
     scan_interval: 21600
     sensor:
-      - name: "Snapper Partner Balance"
-        unique_id: snapper_partner_balance
+      - name: "Snapper Ness Balance"
+        unique_id: snapper_ness_balance
         unit_of_measurement: NZD
         device_class: monetary
         state_class: total
@@ -103,49 +103,7 @@ rest:
             unavailable
           {%- endif -%}
         attributes:
-          owner: "Partner"
-  - resource: !secret snapper_guest_1_card
-    method: POST
-    headers:
-      Content-Type: text/plain;charset=UTF-8
-      Origin: https://catchy.nz
-    payload: !secret snapper_guest_1_cvv
-    scan_interval: 21600
-    sensor:
-      - name: "Snapper Guest 1 Balance"
-        unique_id: snapper_guest_1_balance
-        unit_of_measurement: NZD
-        device_class: monetary
-        state_class: total
-        value_template: >-
-          {%- if value_json.currentBalanceCents is defined -%}
-            {{ (value_json.currentBalanceCents / 100) }}
-          {%- else -%}
-            unavailable
-          {%- endif -%}
-        attributes:
-          owner: "Guest 1"
-  - resource: !secret snapper_guest_2_card
-    method: POST
-    headers:
-      Content-Type: text/plain;charset=UTF-8
-      Origin: https://catchy.nz
-    payload: !secret snapper_guest_2_cvv
-    scan_interval: 21600
-    sensor:
-      - name: "Snapper Guest 2 Balance"
-        unique_id: snapper_guest_2_balance
-        unit_of_measurement: NZD
-        device_class: monetary
-        state_class: total
-        value_template: >-
-          {%- if value_json.currentBalanceCents is defined -%}
-            {{ (value_json.currentBalanceCents / 100) }}
-          {%- else -%}
-            unavailable
-          {%- endif -%}
-        attributes:
-          owner: "Guest 2"
+          owner: "Ness"
 
 # sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
 template:

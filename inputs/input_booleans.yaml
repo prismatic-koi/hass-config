@@ -53,14 +53,8 @@ snapper_notify_ben_work:
 snapper_notify_ben_personal:
   name: "Snapper Ben Personal Low Balance Notify"
   icon: mdi:bell-ring
-snapper_notify_partner:
-  name: "Snapper Partner Low Balance Notify"
-  icon: mdi:bell-ring
-snapper_notify_guest_1:
-  name: "Snapper Guest 1 Low Balance Notify"
-  icon: mdi:bell-ring
-snapper_notify_guest_2:
-  name: "Snapper Guest 2 Low Balance Notify"
+snapper_notify_ness:
+  name: "Snapper Ness Low Balance Notify"
   icon: mdi:bell-ring
 
 # State Variables
