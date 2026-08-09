@@ -4,7 +4,7 @@
   trigger:
   - platform: numeric_state
     entity_id: sensor.snapper_ben_personal_balance
-    below: 5
+    below: 10
   condition:
   - condition: state
     entity_id: input_boolean.snapper_notify_ben_personal
@@ -13,4 +13,4 @@
   - service: notify.notify
     data:
       title: "Snapper Low Balance"
-      message: "Ben Personal Snapper card balance is below $5."
+      message: "Ben Personal Snapper card balance is below ${{ trigger.below | int }}."
