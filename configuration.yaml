@@ -34,6 +34,11 @@ api:
 # state_class: total — per HA's sensor entity docs, device_class: monetary
 # forbids state_class: measurement, and total fits a balance that rises on
 # top-up and falls on tag-off.
+#
+# availability: marks the entity unavailable when currentBalanceCents is absent
+# from the response, avoiding the ValueError that occurs when value_template
+# returns a non-numeric string to a sensor with device_class: monetary.
+# value_template: arithmetic only — divides cents by 100 and rounds to 2 places.
 rest:
   - resource: !secret snapper_ben_work_resource
     method: POST
@@ -48,12 +53,8 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         state_class: total
-        value_template: >-
-          {%- if value_json.currentBalanceCents is defined -%}
-            {{ (value_json.currentBalanceCents / 100) }}
-          {%- else -%}
-            unavailable
-          {%- endif -%}
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
   - resource: !secret snapper_ben_personal_resource
     method: POST
     headers:
@@ -67,12 +68,8 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         state_class: total
-        value_template: >-
-          {%- if value_json.currentBalanceCents is defined -%}
-            {{ (value_json.currentBalanceCents / 100) }}
-          {%- else -%}
-            unavailable
-          {%- endif -%}
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
   - resource: !secret snapper_ness_resource
     method: POST
     headers:
@@ -86,12 +83,8 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         state_class: total
-        value_template: >-
-          {%- if value_json.currentBalanceCents is defined -%}
-            {{ (value_json.currentBalanceCents / 100) }}
-          {%- else -%}
-            unavailable
-          {%- endif -%}
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
 
 # sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
 template:
