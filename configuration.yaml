@@ -50,11 +50,11 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         value_template: >-
-          {% if value_json.currentBalanceCents is defined %}
-            {{ value_json.currentBalanceCents / 100 }}
-          {% else %}
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
             unavailable
-          {% endif %}
+          {%- endif -%}
         attributes:
           owner: "Ben"
   - resource: !secret snapper_ben_personal_card
@@ -70,11 +70,11 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         value_template: >-
-          {% if value_json.currentBalanceCents is defined %}
-            {{ value_json.currentBalanceCents / 100 }}
-          {% else %}
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
             unavailable
-          {% endif %}
+          {%- endif -%}
         attributes:
           owner: "Ben"
   - resource: !secret snapper_partner_card
@@ -90,11 +90,11 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         value_template: >-
-          {% if value_json.currentBalanceCents is defined %}
-            {{ value_json.currentBalanceCents / 100 }}
-          {% else %}
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
             unavailable
-          {% endif %}
+          {%- endif -%}
         attributes:
           owner: "Partner"
   - resource: !secret snapper_guest_1_card
@@ -110,11 +110,11 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         value_template: >-
-          {% if value_json.currentBalanceCents is defined %}
-            {{ value_json.currentBalanceCents / 100 }}
-          {% else %}
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
             unavailable
-          {% endif %}
+          {%- endif -%}
         attributes:
           owner: "Guest 1"
   - resource: !secret snapper_guest_2_card
@@ -130,11 +130,11 @@ rest:
         unit_of_measurement: NZD
         device_class: monetary
         value_template: >-
-          {% if value_json.currentBalanceCents is defined %}
-            {{ value_json.currentBalanceCents / 100 }}
-          {% else %}
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
             unavailable
-          {% endif %}
+          {%- endif -%}
         attributes:
           owner: "Guest 2"
 
