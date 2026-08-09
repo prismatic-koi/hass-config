@@ -46,6 +46,17 @@ blinds_lounge_temperature_protection_enable:
   name: "Lounge Temperature Protection"
   icon: mdi:home-automation
 
+# Snapper low-balance notification toggles
+snapper_notify_ben_work:
+  name: "Snapper Ben Work Low Balance Notify"
+  icon: mdi:bell-ring
+snapper_notify_ben_personal:
+  name: "Snapper Ben Personal Low Balance Notify"
+  icon: mdi:bell-ring
+snapper_notify_ness:
+  name: "Snapper Ness Low Balance Notify"
+  icon: mdi:bell-ring
+
 # State Variables
 ambient_lights_active:
   name: "Ambient Lights Active"

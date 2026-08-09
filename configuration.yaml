@@ -27,6 +27,84 @@ http:
 # enable api
 api:
 
+# Snapper card balances via catchy.nz (unofficial free third-party aggregator).
+# catchy.nz is not an official Snapper API and can stop working without
+# notice. This risk is accepted; do not harden against it.
+#
+# YAML's !secret tag can only replace a whole scalar value, not part of a
+# string. So each card's full POST URL (https://catchy.nz/api/snapper/<card>)
+# lives in secrets.yaml under the *_card key, and each full JSON payload
+# ({"cvv":"<cvv>"}) lives under the *_cvv key. No card number or CVV is ever
+# written to a tracked file.
+#
+# state_class: total — per HA's sensor entity docs, device_class: monetary
+# forbids state_class: measurement, and total fits a balance that rises on
+# top-up and falls on tag-off.
+rest:
+  - resource: !secret snapper_ben_work_card
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ben_work_cvv
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ben Work Balance"
+        unique_id: snapper_ben_work_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        value_template: >-
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
+            unavailable
+          {%- endif -%}
+        attributes:
+          owner: "Ben"
+  - resource: !secret snapper_ben_personal_card
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ben_personal_cvv
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ben Personal Balance"
+        unique_id: snapper_ben_personal_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        value_template: >-
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
+            unavailable
+          {%- endif -%}
+        attributes:
+          owner: "Ben"
+  - resource: !secret snapper_ness_card
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ness_cvv
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ness Balance"
+        unique_id: snapper_ness_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        value_template: >-
+          {%- if value_json.currentBalanceCents is defined -%}
+            {{ (value_json.currentBalanceCents / 100) }}
+          {%- else -%}
+            unavailable
+          {%- endif -%}
+        attributes:
+          owner: "Ness"
+
 # sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
 template:
   - sensor:

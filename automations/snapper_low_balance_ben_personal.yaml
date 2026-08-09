@@ -1,0 +1,16 @@
+- id: snapper_low_balance_ben_personal
+  alias: Snapper Low Balance - Ben Personal
+  description: 'Notify Ben when the Snapper Ben Personal card balance drops below the threshold.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.snapper_ben_personal_balance
+    below: 10
+  condition:
+  - condition: state
+    entity_id: input_boolean.snapper_notify_ben_personal
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: "Snapper Low Balance"
+      message: "Ben Personal Snapper card balance is below ${{ trigger.below | int }}."

@@ -1,0 +1,24 @@
+- id: snapper_low_balance_ben_work
+  alias: Snapper Low Balance - Ben Work
+  description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.snapper_ben_work_balance
+    below: 10
+  condition:
+  - condition: state
+    entity_id: input_boolean.snapper_notify_ben_work
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: "Snapper Low Balance"
+      # message templates the threshold off trigger.below rather than a
+      # second hardcoded literal, so it can't desync from the trigger above.
+      # Known cosmetic edge case: a manual run (Run button / automation.trigger)
+      # populates trigger with no below key, so trigger.below renders as 0 and
+      # the message reads "below $0" on a manual test only. Accepted; do not
+      # paper over with a default(), which would reintroduce the duplicate
+      # literal this template avoids. Applies to all three snapper low-balance
+      # automations; documented here only.
+      message: "Ben Work Snapper card balance is below ${{ trigger.below | int }}."
