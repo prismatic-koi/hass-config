@@ -36,6 +36,10 @@ api:
 # lives in secrets.yaml under the *_card key, and each full JSON payload
 # ({"cvv":"<cvv>"}) lives under the *_cvv key. No card number or CVV is ever
 # written to a tracked file.
+#
+# state_class: total — per HA's sensor entity docs, device_class: monetary
+# forbids state_class: measurement, and total fits a balance that rises on
+# top-up and falls on tag-off.
 rest:
   - resource: !secret snapper_ben_work_card
     method: POST
@@ -49,6 +53,7 @@ rest:
         unique_id: snapper_ben_work_balance
         unit_of_measurement: NZD
         device_class: monetary
+        state_class: total
         value_template: >-
           {%- if value_json.currentBalanceCents is defined -%}
             {{ (value_json.currentBalanceCents / 100) }}
@@ -69,6 +74,7 @@ rest:
         unique_id: snapper_ben_personal_balance
         unit_of_measurement: NZD
         device_class: monetary
+        state_class: total
         value_template: >-
           {%- if value_json.currentBalanceCents is defined -%}
             {{ (value_json.currentBalanceCents / 100) }}
@@ -89,6 +95,7 @@ rest:
         unique_id: snapper_partner_balance
         unit_of_measurement: NZD
         device_class: monetary
+        state_class: total
         value_template: >-
           {%- if value_json.currentBalanceCents is defined -%}
             {{ (value_json.currentBalanceCents / 100) }}
@@ -109,6 +116,7 @@ rest:
         unique_id: snapper_guest_1_balance
         unit_of_measurement: NZD
         device_class: monetary
+        state_class: total
         value_template: >-
           {%- if value_json.currentBalanceCents is defined -%}
             {{ (value_json.currentBalanceCents / 100) }}
@@ -129,6 +137,7 @@ rest:
         unique_id: snapper_guest_2_balance
         unit_of_measurement: NZD
         device_class: monetary
+        state_class: total
         value_template: >-
           {%- if value_json.currentBalanceCents is defined -%}
             {{ (value_json.currentBalanceCents / 100) }}
