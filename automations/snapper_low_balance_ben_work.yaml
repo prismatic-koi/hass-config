@@ -1,0 +1,16 @@
+- id: snapper_low_balance_ben_work
+  alias: Snapper Low Balance - Ben Work
+  description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.snapper_ben_work_balance
+    below: 5
+  condition:
+  - condition: state
+    entity_id: input_boolean.snapper_notify_ben_work
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: "Snapper Low Balance"
+      message: "Ben Work Snapper card balance is below $5."

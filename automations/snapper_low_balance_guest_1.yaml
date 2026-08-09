@@ -1,0 +1,16 @@
+- id: snapper_low_balance_guest_1
+  alias: Snapper Low Balance - Guest 1
+  description: 'Notify Ben when the Snapper Guest 1 card balance drops below the threshold. Guest cards route to Ben, not to the guest.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.snapper_guest_1_balance
+    below: 5
+  condition:
+  - condition: state
+    entity_id: input_boolean.snapper_notify_guest_1
+    state: 'on'
+  action:
+  - service: notify.notify
+    data:
+      title: "Snapper Low Balance"
+      message: "Guest 1 Snapper card balance is below $5."

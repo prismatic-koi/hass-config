@@ -18,6 +18,9 @@ ip_bans.yaml
 known_devices.yaml
 secrets.yaml
 
+## HA-managed runtime state (drifts from repo, breaks git-sync on the pod)
+.HA_VERSION
+
 ## Others
 ._includes
 .homekit.state
