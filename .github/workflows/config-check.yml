@@ -1,0 +1,32 @@
+name: Config check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check-config:
+    runs-on: ubuntu-latest
+    env:
+      # Keep in step with the version running on the pod.
+      HA_VERSION: "2026.8.1"
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Generate throwaway secrets.yaml
+        run: cp secrets.yaml.example secrets.yaml
+
+      - name: Copy config to a writable directory
+        run: |
+          mkdir -p /tmp/config
+          cp -a . /tmp/config/
+
+      - name: Run Home Assistant config check
+        run: |
+          docker run --rm \
+            -v /tmp/config:/config \
+            "ghcr.io/home-assistant/home-assistant:${HA_VERSION}" \
+            python -m homeassistant --script check_config -c /config
