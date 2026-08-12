@@ -42,6 +42,7 @@ lovelace:
   dashboards:
     lovelace-monitoring:
       mode: yaml
+      icon: mdi:cloud
       title: Monitoring
       filename: dashboards/monitoring.yaml
       show_in_sidebar: true
