@@ -1,3 +1,15 @@
+# Core configuration (read from the live instance's /api/config).
+homeassistant:
+  name: Home
+  latitude: -41.27266816174775
+  longitude: 174.78256970644
+  elevation: 0
+  unit_system: metric
+  currency: NZD
+  country: NZ
+  language: en-GB
+  time_zone: Pacific/Auckland
+
 # Loads default set of integrations. Do not remove.
 default_config:
 
