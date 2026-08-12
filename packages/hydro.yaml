@@ -1,0 +1,175 @@
+# Hydroponics
+
+input_boolean:
+  grow_lights_active:
+    name: "Grow Lights Active"
+    icon: mdi:flower
+
+input_datetime:
+  hydro_growlight_start:
+    name: "Start Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_growlight_stop:
+    name: "Stop Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_pump_start_1:
+    name: "Start Time 1"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_pump_start_2:
+    name: "Start Time 2"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+
+input_number:
+  hydro_pump_duration_1:
+    name: 'Stay on time'
+    min: 5
+    max: 120
+    step: 5
+    initial: 60
+    mode: box
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+  hydro_pump_duration_2:
+    name: 'Stay on time'
+    min: 5
+    max: 120
+    step: 5
+    initial: 60
+    mode: box
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+
+automation:
+  # As my smart switches are not always reliable, I need to ensure that the grow lights are in the correct state. This automation checks every 5 minutes and corrects the state of the grow lights based on the input boolean helper.
+  - id: grow_light_state_correction
+    alias: Grow Light State Correction
+    description: Periodically checks and corrects grow light states
+    trigger:
+      - platform: time_pattern
+        minutes: "/5" # Check every 5 minutes (adjust as needed)
+    condition: [] # No conditions - always run
+    action:
+      - choose:
+          - conditions: # Check if lights should be on, but the helper is off
+              - condition: state
+                entity_id: input_boolean.grow_lights_active
+                state: 'on'
+            sequence:
+              - service: switch.turn_on # Force turn on all switches
+                target:
+                  entity_id: '{{ switches }}'
+              - service: light.turn_on # Force turn on the light
+                target:
+                  entity_id: light.office_plant_stand
+                data:
+                  brightness_pct: 100
+                  transition: 0 # No transition for correction
+
+          - conditions: # Check if lights should be off, but the helper is on
+              - condition: state
+                entity_id: input_boolean.grow_lights_active
+                state: 'off'
+            sequence:
+              - service: switch.turn_off # Force turn off all switches
+                target:
+                  entity_id: '{{ switches }}'
+              - service: light.turn_off # Force turn off the light
+                target:
+                  entity_id: light.office_plant_stand
+    variables:
+      switches:
+        - switch.cactus_growlight
+        - switch.large_growlight
+        - switch.nft_growlight
+        - switch.light_tower
+        - switch.mini_light_tower
+
+  - id: hydro_growlight_off
+    alias: Growlight Off
+    description: Turn lights off at specific time
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_growlight_stop
+    action:
+    - service: switch.turn_off
+      target:
+        entity_id: '{{ switches }}'
+    - service: light.turn_off
+      target:
+        entity_id: light.office_plant_stand
+    - service: input_boolean.turn_off # Set helper to OFF
+      target:
+        entity_id: input_boolean.grow_lights_active
+    variables:
+      switches:
+      - switch.cactus_growlight
+      - switch.large_growlight
+      - switch.nft_growlight
+      - switch.light_tower
+      - switch.mini_light_tower
+
+  - id: hydro_growlight_timer #old id, kept for compatibility with ui
+    alias: Growlight On
+    description: Turn lights on at specific time
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_growlight_start
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: '{{ switches }}'
+    - service: light.turn_on
+      target:
+        entity_id: light.office_plant_stand
+      data:
+        brightness_pct: 100
+        color_temp_kelvin: 6535
+        transition: 5
+    - service: input_boolean.turn_on # Set helper to ON
+      target:
+        entity_id: input_boolean.grow_lights_active
+    variables:
+      switches:
+      - switch.cactus_growlight
+      - switch.large_growlight
+      - switch.nft_growlight
+      - switch.light_tower
+      - switch.mini_light_tower
+
+  - id: hydro_pump_timer_1
+    alias: Hydro Pump Timer 1
+    description: Turn pump on at specific time for duration
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_pump_start_1
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.hydro_pump
+    - delay: '{{ states(''input_number.hydro_pump_duration_1'') | int(0) * 60 }}'
+    - service: switch.turn_off
+      target:
+        entity_id: switch.hydro_pump
+  - id: hydro_pump_timer_2
+    alias: Hydro Pump Timer 2
+    description: Turn pump on at specific time for duration
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_pump_start_2
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.hydro_pump
+    - delay: '{{ states(''input_number.hydro_pump_duration_2'') | int(0) * 60 }}'
+    - service: switch.turn_off
+      target:
+        entity_id: switch.hydro_pump
+

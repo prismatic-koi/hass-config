@@ -9,6 +9,7 @@ homeassistant:
   country: NZ
   language: en-GB
   time_zone: Pacific/Auckland
+  packages: !include_dir_named packages/
 
 # Loads default set of integrations. Do not remove.
 default_config:
@@ -19,95 +20,11 @@ tts:
 
 # Automations created in the ui
 automation ui: !include automations.yaml
-# automations folder
-automation manual: !include_dir_merge_list automations/
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-# Inputs
-input_boolean: !include inputs/input_booleans.yaml
-input_datetime: !include inputs/input_datetimes.yaml
-#input_select: !include inputs/input_selects.yaml
-input_number: !include inputs/input_numbers.yaml
-
 # enable api
 api:
-
-# Snapper card balances via catchy.nz (unofficial free third-party aggregator).
-# catchy.nz is not an official Snapper API and can stop working without
-# notice. This risk is accepted; do not harden against it.
-#
-# YAML's !secret tag can only replace a whole scalar value, not part of a
-# string. So each card's full POST URL (https://catchy.nz/api/snapper/<CARD_NUMBER>)
-# lives in secrets.yaml under the *_resource key, and each full JSON payload
-# ({"cvv":"<CVV>"}) lives under the *_payload key. No card number or CVV is ever
-# written to a tracked file.
-#
-# state_class: total — per HA's sensor entity docs, device_class: monetary
-# forbids state_class: measurement, and total fits a balance that rises on
-# top-up and falls on tag-off.
-#
-# availability: marks the entity unavailable when currentBalanceCents is absent
-# from the response, avoiding the ValueError that occurs when value_template
-# returns a non-numeric string to a sensor with device_class: monetary.
-# value_template: arithmetic only — divides cents by 100 and rounds to 2 places.
-rest:
-  - resource: !secret snapper_ben_work_resource
-    method: POST
-    headers:
-      Content-Type: text/plain;charset=UTF-8
-      Origin: https://catchy.nz
-    payload: !secret snapper_ben_work_payload
-    scan_interval: 21600
-    sensor:
-      - name: "Snapper Ben Work Balance"
-        unique_id: snapper_ben_work_balance
-        unit_of_measurement: NZD
-        device_class: monetary
-        state_class: total
-        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
-        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
-  - resource: !secret snapper_ben_personal_resource
-    method: POST
-    headers:
-      Content-Type: text/plain;charset=UTF-8
-      Origin: https://catchy.nz
-    payload: !secret snapper_ben_personal_payload
-    scan_interval: 21600
-    sensor:
-      - name: "Snapper Ben Personal Balance"
-        unique_id: snapper_ben_personal_balance
-        unit_of_measurement: NZD
-        device_class: monetary
-        state_class: total
-        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
-        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
-  - resource: !secret snapper_ness_resource
-    method: POST
-    headers:
-      Content-Type: text/plain;charset=UTF-8
-      Origin: https://catchy.nz
-    payload: !secret snapper_ness_payload
-    scan_interval: 21600
-    sensor:
-      - name: "Snapper Ness Balance"
-        unique_id: snapper_ness_balance
-        unit_of_measurement: NZD
-        device_class: monetary
-        state_class: total
-        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
-        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
-
-# sensor: Wake Up Lights ??? I forget what I was doing here, perhaps should be an automation
-template:
-  - sensor:
-      - name: "Lights Timer"
-        unique_id: wake_up_lights_time_ends
-        icon: mdi:alarm-off
-        state: >
-          {{ (((state_attr('input_datetime.wake_up_lights_set_time' , 'timestamp'))
-          + ((states('input_number.wake_up_lights_fade_minutes') | int(0) * 60)
-          + states('input_number.wake_up_lights_minutes') | int(0) * 60))|timestamp_custom('%H:%M', false)) }}
 
 # database to store history
 recorder:

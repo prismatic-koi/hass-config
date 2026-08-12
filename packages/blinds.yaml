@@ -1,0 +1,353 @@
+# Blinds
+
+input_boolean:
+  blinds_office_automation_enable:
+    name: "Office Blinds Automation"
+    icon: mdi:home-automation
+  blinds_lounge_automation_enable:
+    name: "Lounge Blinds Automation"
+    icon: mdi:home-automation
+  blinds_office_up_custom_time_enable:
+    name: "Office Blinds Up Use Custom Time"
+    icon: mdi:wrench-clock
+  blinds_office_down_custom_time_enable:
+    name: "Office Blinds Down Use Custom Time"
+    icon: mdi:wrench-clock
+  blinds_lounge_up_custom_time_enable:
+    name: "Lounge Blinds Up Use Custom Time"
+    icon: mdi:wrench-clock
+  blinds_lounge_down_custom_time_enable:
+    name: "Lounge Blinds Down Use Custom Time"
+    icon: mdi:wrench-clock
+  blinds_lounge_temperature_protection_enable:
+    name: "Lounge Temperature Protection"
+    icon: mdi:home-automation
+
+input_datetime:
+  blinds_office_up_custom_time:
+    name: "Office Blinds Up Custom Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  blinds_office_down_custom_time:
+    name: "Office Blinds Down Custom Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  blinds_lounge_up_custom_time:
+    name: "Lounge Blinds Up Custom Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  blinds_lounge_down_custom_time:
+    name: "Lounge Blinds Down Custom Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  lounge_temp_protection_buffer_time:
+    name: "Down time buffer"
+    has_date: false
+    has_time: true
+    icon: mdi:timer-pause
+
+input_number:
+  lounge_temperature_protection_value:
+    name: 'Temp to Trigger'
+    min: 15
+    max: 100
+    step: 1
+    initial: 27
+    mode: box
+    icon: mdi:car-brake-temperature
+    unit_of_measurement: °C
+
+automation:
+  - id: blinds_lounge_sunrise_up
+    alias: Lounge Blinds Sunrise Up
+    description: ''
+    mode: single
+    trigger:
+    - platform: sun
+      event: sunrise
+      offset: -00:20:00
+    condition:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_up_custom_time_enable
+          state: 'off'
+    action:
+    - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+      domain: cover
+      entity_id: cover.lounge_left
+      type: open
+    - device_id: 354cf259959c6e8babad393ece0777eb
+      domain: cover
+      entity_id: cover.lounge_right
+      type: open
+
+  - id: blinds_lounge_time_up
+    alias: Lounge Blinds Custom Time Up
+    description: ''
+    mode: single
+    trigger:
+    - platform: time
+      at: input_datetime.blinds_lounge_up_custom_time
+    condition:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_up_custom_time_enable
+          state: 'on'
+    action:
+    - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+      domain: cover
+      entity_id: cover.lounge_left
+      type: open
+    - device_id: 354cf259959c6e8babad393ece0777eb
+      domain: cover
+      entity_id: cover.lounge_right
+      type: open
+
+  - id: blinds_lounge_sunset_down
+    alias: Lounge Blinds Sunset Down
+    description: ''
+    mode: single
+    trigger:
+    - platform: sun
+      event: sunset
+      offset: +00:20:00
+    condition: 
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_down_custom_time_enable
+          state: 'off'
+    action:
+    - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+      domain: cover
+      entity_id: cover.lounge_left
+      type: close
+    - device_id: 354cf259959c6e8babad393ece0777eb
+      domain: cover
+      entity_id: cover.lounge_right
+      type: close
+    
+  - id: blinds_lounge_time_down
+    alias: Lounge Blinds Custom Time Down
+    description: ''
+    mode: single
+    trigger:
+    - platform: time
+      at: input_datetime.blinds_lounge_down_custom_time
+    condition:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.blinds_lounge_automation_enable
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.blinds_lounge_down_custom_time_enable
+        state: 'on'
+    action:
+    - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+      domain: cover
+      entity_id: cover.lounge_left
+      type: close
+    - device_id: 354cf259959c6e8babad393ece0777eb
+      domain: cover
+      entity_id: cover.lounge_right
+      type: close
+  - id: blinds_lounge_temperature_protection
+    alias: Lounge Blinds Temperature Protection
+    description: ''
+    mode: single
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.lounge_sensor_temperature
+      above: input_number.lounge_temperature_protection_value
+    condition: 
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_lounge_temperature_protection_enable
+          state: 'on'
+        - condition: template
+          value_template: "{{ (as_timestamp(now()) - as_timestamp(states.cover.lounge_blinds.last_changed)) > state_attr('input_datetime.lounge_temp_protection_buffer_time', 'timestamp') }}"
+    action:
+    - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+      domain: cover
+      entity_id: cover.lounge_left
+      type: close
+    - device_id: 354cf259959c6e8babad393ece0777eb
+      domain: cover
+      entity_id: cover.lounge_right
+      type: close
+  - id: blinds_office_sunrise_up
+    alias: Office Blinds Sunrise Up
+    description: ''
+    mode: single
+    trigger:
+    - platform: sun
+      event: sunrise
+      offset: -00:20:00
+    condition:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_office_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_office_up_custom_time_enable
+          state: 'off'
+    action:
+    - device_id: caaa65a885fafc40cd3973d4815aad8d
+      domain: cover
+      entity_id: cover.office_left
+      type: open
+    - device_id: 584ff368f341b51a5adc2ce6256d99b2
+      domain: cover
+      entity_id: cover.office_right
+      type: open
+
+  - id: blinds_office_time_up
+    alias: Office Blinds Custom Time Up
+    description: ''
+    mode: single
+    trigger:
+    - platform: time
+      at: input_datetime.blinds_office_up_custom_time
+    condition:
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_office_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_office_up_custom_time_enable
+          state: 'on'
+    action:
+    - device_id: caaa65a885fafc40cd3973d4815aad8d
+      domain: cover
+      entity_id: cover.office_left
+      type: open
+    - device_id: 584ff368f341b51a5adc2ce6256d99b2
+      domain: cover
+      entity_id: cover.office_right
+      type: open
+
+  - id: blinds_office_sunset_down
+    alias: Office Blinds Sunset Down
+    description: ''
+    mode: single
+    trigger:
+    - platform: sun
+      event: sunset
+      offset: +00:20:00
+    condition: 
+      - condition: and
+        conditions:
+        - condition: state
+          entity_id: input_boolean.blinds_office_automation_enable
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.blinds_office_down_custom_time_enable
+          state: 'off'
+    action:
+    - device_id: caaa65a885fafc40cd3973d4815aad8d
+      domain: cover
+      entity_id: cover.office_left
+      type: close
+    - device_id: 584ff368f341b51a5adc2ce6256d99b2
+      domain: cover
+      entity_id: cover.office_right
+      type: close
+    
+  - id: blinds_office_time_down
+    alias: Office Blinds Custom Time Down
+    description: ''
+    mode: single
+    trigger:
+    - platform: time
+      at: input_datetime.blinds_office_down_custom_time
+    condition:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: input_boolean.blinds_office_automation_enable
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.blinds_office_down_custom_time_enable
+        state: 'on'
+    action:
+    - device_id: caaa65a885fafc40cd3973d4815aad8d
+      domain: cover
+      entity_id: cover.office_left
+      type: close
+    - device_id: 584ff368f341b51a5adc2ce6256d99b2
+      domain: cover
+      entity_id: cover.office_right
+      type: close
+  # - id: '1657856914415' #old id, kept for compatibility with ui
+  #   alias: Sunrise Blinds Up
+  #   description: ''
+  #   trigger:
+  #   - platform: sun
+  #     event: sunrise
+  #     offset: -00:20:00
+  #   condition: []
+  #   action:
+  #   - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+  #     domain: cover
+  #     entity_id: cover.lounge_left
+  #     type: open
+  #   - device_id: 354cf259959c6e8babad393ece0777eb
+  #     domain: cover
+  #     entity_id: cover.lounge_right
+  #     type: open
+  #   - device_id: caaa65a885fafc40cd3973d4815aad8d
+  #     domain: cover
+  #     entity_id: cover.office_left
+  #     type: open
+  #   - device_id: 584ff368f341b51a5adc2ce6256d99b2
+  #     domain: cover
+  #     entity_id: cover.office_right
+  #     type: open
+  #   mode: single
+
+  # - id: '1657857063990' #old id, kept for compatibility with ui
+  #   alias: Sunset Blinds Down
+  #   description: ''
+  #   trigger:
+  #   - platform: sun
+  #     event: sunset
+  #     offset: +00:20:00
+  #   condition: []
+  #   action:
+  #   - device_id: 4e5cf1c36681f9f030dc97557820c0fd
+  #     domain: cover
+  #     entity_id: cover.lounge_left
+  #     type: close
+  #   - device_id: 354cf259959c6e8babad393ece0777eb
+  #     domain: cover
+  #     entity_id: cover.lounge_right
+  #     type: close
+  #   - device_id: caaa65a885fafc40cd3973d4815aad8d
+  #     domain: cover
+  #     entity_id: cover.office_left
+  #     type: close
+  #   - device_id: 584ff368f341b51a5adc2ce6256d99b2
+  #     domain: cover
+  #     entity_id: cover.office_right
+  #     type: close
+  #   mode: single
+

@@ -1,0 +1,124 @@
+# Hallway Motion
+
+input_number:
+  hallway_motion_timeout:
+    name: 'Stay on time'
+    min: 1
+    max: 30
+    step: 1
+    initial: 5
+    mode: box
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+
+automation:
+  - id: id_hallway_motion_near
+    alias: Hallway Motion Light Near
+    description: Turn on ambient lights after sunset on motion detect
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.hall_sensor_near_occupancy
+      from: 'off'
+      to: 'on'
+    condition:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: state
+      entity_id: input_boolean.ambient_lights_active # Use the helper to check if lights should be off
+      state: 'off'
+    action:
+    - service: light.turn_on
+      target:
+        entity_id: '{{ lights }}'
+      data:
+        brightness_pct: 75
+        transition: 2
+    - service: light.turn_on
+      target:
+        entity_id: '{{ brightlights }}'
+      data:
+        brightness_pct: 20
+        transition: 2
+    - service: input_boolean.turn_on # Set helper to ON when this automation turns lights on
+      target:
+        entity_id: input_boolean.ambient_lights_active
+    - wait_for_trigger:
+        platform: state
+        entity_id: binary_sensor.hall_sensor_near_occupancy
+        from: 'on'
+        to: 'off'
+    - delay: '{{ states(''input_number.hallway_motion_timeout'') | int(0) * 60 }}'
+    - service: light.turn_off
+      target:
+        entity_id: '{{ lights }}'
+    - service: light.turn_off
+      target:
+        entity_id: '{{ brightlights }}'
+    - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
+      target:
+        entity_id: input_boolean.ambient_lights_active
+    variables:
+      lights:
+      - light.kitchen_lightstrip
+      - light.tv_backlight
+      - light.plant_backlight
+      - light.desk_lightstrip
+      brightlights:
+      - light.hall_lightstrip
+
+  - id: id_hallway_motion_far
+    alias: Hallway Motion Light Far
+    description: Turn on ambient lights after sunset on motion detect
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.hall_sensor_far_occupancy
+      from: 'off'
+      to: 'on'
+    condition:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: state
+      entity_id: input_boolean.ambient_lights_active # Use the helper to check if lights should be off
+      state: 'off'
+    action:
+    - service: light.turn_on
+      target:
+        entity_id: '{{ lights }}'
+      data:
+        brightness_pct: 75
+        transition: 2
+    - service: light.turn_on
+      target:
+        entity_id: '{{ brightlights }}'
+      data:
+        brightness_pct: 20
+        transition: 2
+    - service: input_boolean.turn_on # Set helper to ON when this automation turns lights on
+      target:
+        entity_id: input_boolean.ambient_lights_active
+    - wait_for_trigger:
+        platform: state
+        entity_id: binary_sensor.hall_sensor_far_occupancy
+        from: 'on'
+        to: 'off'
+    - delay: '{{ states(''input_number.hallway_motion_timeout'') | int(0) * 60 }}'
+    - service: light.turn_off
+      target:
+        entity_id: '{{ lights }}'
+    - service: light.turn_off
+      target:
+        entity_id: '{{ brightlights }}'
+    - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
+      target:
+        entity_id: input_boolean.ambient_lights_active
+    variables:
+      lights:
+      - light.kitchen_lightstrip
+      - light.tv_backlight
+      - light.plant_backlight
+      - light.desk_lightstrip
+      brightlights:
+      - light.hall_lightstrip
+
