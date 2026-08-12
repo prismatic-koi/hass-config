@@ -1,0 +1,113 @@
+views:
+  - theme: Backend-selected
+    title: Temperature
+    path: temperature
+    icon: mdi:home-thermometer
+    type: sidebar
+    badges: []
+    cards:
+      - type: history-graph
+        entities:
+          - entity: sensor.lounge_sensor_temperature
+          - entity: sensor.office_sensor_temperature
+          - entity: sensor.bedroom_sensor_temperature
+          - entity: sensor.emptyroom_sensor_temperature
+          - entity: sensor.spareroom_sensor_temperature
+          - entity: sensor.green_bathroom_sensor_temperature
+        hours_to_show: 48
+        title: Temperature 48 Hour
+      - chart_type: line
+        period: hour
+        days_to_show: 90
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_temperature
+          - sensor.office_sensor_temperature
+          - sensor.bedroom_sensor_temperature
+          - sensor.emptyroom_sensor_temperature
+          - sensor.spareroom_sensor_temperature
+        stat_types:
+          - mean
+        title: Temperature 90 Day
+      - chart_type: line
+        period: day
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_temperature
+          - sensor.office_sensor_temperature
+          - sensor.bedroom_sensor_temperature
+          - sensor.emptyroom_sensor_temperature
+          - sensor.spareroom_sensor_temperature
+        stat_types:
+          - mean
+        title: Temperature 180 Day
+        days_to_show: 180
+      - chart_type: line
+        period: day
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_temperature
+          - sensor.office_sensor_temperature
+          - sensor.bedroom_sensor_temperature
+          - sensor.emptyroom_sensor_temperature
+          - sensor.spareroom_sensor_temperature
+        stat_types:
+          - mean
+        title: Temperature 365 Day
+        days_to_show: 365
+  - theme: Backend-selected
+    title: Humidity
+    path: humidity
+    icon: mdi:water-percent
+    type: sidebar
+    badges: []
+    cards:
+      - type: history-graph
+        entities:
+          - entity: sensor.lounge_sensor_humidity
+          - entity: sensor.office_sensor_humidity
+          - entity: sensor.bedroom_sensor_humidity
+          - entity: sensor.emptyroom_sensor_humidity
+          - entity: sensor.spareroom_sensor_humidity
+          - entity: sensor.green_bathroom_sensor_humidity
+        hours_to_show: 48
+        title: Humidity 48 Hour
+      - chart_type: line
+        period: hour
+        days_to_show: 90
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_humidity
+          - sensor.office_sensor_humidity
+          - sensor.bedroom_sensor_humidity
+          - sensor.emptyroom_sensor_humidity
+          - sensor.spareroom_sensor_humidity
+        stat_types:
+          - mean
+        title: Humidity 90 Day Average
+      - chart_type: line
+        period: day
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_humidity
+          - sensor.office_sensor_humidity
+          - sensor.bedroom_sensor_humidity
+          - sensor.emptyroom_sensor_humidity
+          - sensor.spareroom_sensor_humidity
+        stat_types:
+          - mean
+        title: Humidity 180 Day
+        days_to_show: 180
+      - chart_type: line
+        period: day
+        type: statistics-graph
+        entities:
+          - sensor.lounge_sensor_humidity
+          - sensor.office_sensor_humidity
+          - sensor.bedroom_sensor_humidity
+          - sensor.emptyroom_sensor_humidity
+          - sensor.spareroom_sensor_humidity
+        stat_types:
+          - mean
+        title: Humidity 365 Day
+        days_to_show: 365

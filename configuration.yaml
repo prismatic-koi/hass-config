@@ -36,6 +36,16 @@ recorder:
 frontend:
   themes: !include_dir_merge_named themes
 
+# Lovelace dashboards
+lovelace:
+  mode: storage
+  dashboards:
+    lovelace-monitoring:
+      mode: yaml
+      title: Monitoring
+      filename: dashboards/monitoring.yaml
+      show_in_sidebar: true
+
 # locations (Zones)
 zone:
   - name: Home
