@@ -1,0 +1,97 @@
+# Ambient Lights
+
+input_boolean:
+  ambient_lights_active:
+    name: "Ambient Lights Active"
+    icon: mdi:light-auto-outline
+
+input_datetime:
+  ambient_lights_off:
+    name: "Lights off time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+
+automation:
+  - id: id_ambient_lights_on
+    alias: Ambient Lights on
+    description: Turn on ambient lights at sunset
+    trigger:
+      - platform: sun
+        event: sunset
+        offset: 0
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: "{{ lights }}"
+        data:
+          brightness_pct: 75
+          transition: 60
+          color_temp_kelvin: 2762
+      - service: light.turn_on
+        target:
+          entity_id: "{{ brightlights }}"
+        data:
+          brightness_pct: 20
+          transition: 2
+      - service: switch.turn_on
+        target:
+          entity_id: "{{ switches }}"
+      - service: input_boolean.turn_on # Set helper to ON when this automation turns lights on
+        target:
+          entity_id: input_boolean.ambient_lights_active
+    variables:
+      lights:
+        - light.kitchen_lightstrip
+        - light.tv_backlight
+        - light.plant_backlight
+        - light.desk_lightstrip
+      brightlights:
+        - light.hall_lightstrip
+      switches:
+        - switch.lounge_big_lamp
+        - switch.lounge_small_lamp
+        - switch.office_desk_lamp
+
+  - id: id_ambient_lights_off
+    alias: Ambient Lights off
+    description: Turn off ambient lights at preset time
+    trigger:
+      - platform: time
+        at: input_datetime.ambient_lights_off
+    action:
+      - service: light.turn_off
+        target:
+          entity_id: "{{ lights }}"
+      - repeat:
+          count: 3
+          sequence:
+            - service: switch.turn_off
+              target:
+                entity_id: "{{ switches }}"
+            - delay: "00:00:05"
+            - condition: template
+              value_template: >
+                {{
+                  states('switch.lounge_big_lamp') == 'off' and
+                  states('switch.lounge_small_lamp') == 'off'
+                }}
+      - service: light.turn_off
+        target:
+          entity_id: "{{ brightlights }}"
+      - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
+        target:
+          entity_id: input_boolean.ambient_lights_active
+    variables:
+      lights:
+        - light.kitchen_lightstrip
+        - light.tv_backlight
+        - light.plant_backlight
+        - light.desk_lightstrip
+      brightlights:
+        - light.hall_lightstrip
+      switches:
+        - switch.lounge_big_lamp
+        - switch.lounge_small_lamp
+        - switch.office_desk_lamp
+

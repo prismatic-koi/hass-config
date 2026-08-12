@@ -1,0 +1,46 @@
+# Nightlight
+
+input_datetime:
+  nightlight_on:
+    name: "Nightlight on time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  nightlight_off:
+    name: "Nightlight off time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+
+automation:
+  - id: id_nightlight_on
+    alias: Nightlight on
+    description: Turn on nightlight at preset time
+    trigger:
+    - platform: time
+      at: input_datetime.nightlight_on
+    variables:
+      entities:
+      - light.nightlight
+    action:
+    - service: light.turn_on
+      target:
+        entity_id: '{{ entities }}'
+      data:
+        brightness_pct: 75
+        transition: 60
+
+  - id: id_nightlight_off
+    alias: Nightlight off
+    description: Turn off nightlight at preset time
+    trigger:
+    - platform: time
+      at: input_datetime.nightlight_off
+    variables:
+      entities:
+      - light.nightlight
+    action:
+    - service: light.turn_off
+      target:
+        entity_id: '{{ entities }}'
+

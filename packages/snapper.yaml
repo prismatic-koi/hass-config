@@ -1,0 +1,138 @@
+# Snapper
+
+input_boolean:
+  snapper_notify_ben_work:
+    name: "Snapper Ben Work Low Balance Notify"
+    icon: mdi:bell-ring
+  snapper_notify_ben_personal:
+    name: "Snapper Ben Personal Low Balance Notify"
+    icon: mdi:bell-ring
+  snapper_notify_ness:
+    name: "Snapper Ness Low Balance Notify"
+    icon: mdi:bell-ring
+
+# Snapper card balances via catchy.nz (unofficial free third-party aggregator).
+# catchy.nz is not an official Snapper API and can stop working without
+# notice. This risk is accepted; do not harden against it.
+#
+# YAML's !secret tag can only replace a whole scalar value, not part of a
+# string. So each card's full POST URL (https://catchy.nz/api/snapper/<CARD_NUMBER>)
+# lives in secrets.yaml under the *_resource key, and each full JSON payload
+# ({"cvv":"<CVV>"}) lives under the *_payload key. No card number or CVV is ever
+# written to a tracked file.
+#
+# state_class: total — per HA's sensor entity docs, device_class: monetary
+# forbids state_class: measurement, and total fits a balance that rises on
+# top-up and falls on tag-off.
+#
+# availability: marks the entity unavailable when currentBalanceCents is absent
+# from the response, avoiding the ValueError that occurs when value_template
+# returns a non-numeric string to a sensor with device_class: monetary.
+# value_template: arithmetic only — divides cents by 100 and rounds to 2 places.
+rest:
+  - resource: !secret snapper_ben_work_resource
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ben_work_payload
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ben Work Balance"
+        unique_id: snapper_ben_work_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
+  - resource: !secret snapper_ben_personal_resource
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ben_personal_payload
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ben Personal Balance"
+        unique_id: snapper_ben_personal_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
+  - resource: !secret snapper_ness_resource
+    method: POST
+    headers:
+      Content-Type: text/plain;charset=UTF-8
+      Origin: https://catchy.nz
+    payload: !secret snapper_ness_payload
+    scan_interval: 21600
+    sensor:
+      - name: "Snapper Ness Balance"
+        unique_id: snapper_ness_balance
+        unit_of_measurement: NZD
+        device_class: monetary
+        state_class: total
+        availability: "{{ value_json is defined and value_json.currentBalanceCents is defined }}"
+        value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
+
+automation:
+  - id: snapper_low_balance_ben_work
+    alias: Snapper Low Balance - Ben Work
+    description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.snapper_ben_work_balance
+      below: 10
+    condition:
+    - condition: state
+      entity_id: input_boolean.snapper_notify_ben_work
+      state: 'on'
+    action:
+    - service: notify.notify
+      data:
+        title: "Snapper Low Balance"
+        # message templates the threshold off trigger.below rather than a
+        # second hardcoded literal, so it can't desync from the trigger above.
+        # Known cosmetic edge case: a manual run (Run button / automation.trigger)
+        # populates trigger with no below key, so trigger.below renders as 0 and
+        # the message reads "below $0" on a manual test only. Accepted; do not
+        # paper over with a default(), which would reintroduce the duplicate
+        # literal this template avoids. Applies to all three snapper low-balance
+        # automations; documented here only.
+        message: "Ben Work Snapper card balance is below ${{ trigger.below | int }}."
+
+  - id: snapper_low_balance_ben_personal
+    alias: Snapper Low Balance - Ben Personal
+    description: 'Notify Ben when the Snapper Ben Personal card balance drops below the threshold.'
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.snapper_ben_personal_balance
+      below: 10
+    condition:
+    - condition: state
+      entity_id: input_boolean.snapper_notify_ben_personal
+      state: 'on'
+    action:
+    - service: notify.notify
+      data:
+        title: "Snapper Low Balance"
+        message: "Ben Personal Snapper card balance is below ${{ trigger.below | int }}."
+
+  - id: snapper_low_balance_ness
+    alias: Snapper Low Balance - Ness
+    description: 'Notify Ness when the Snapper Ness card balance drops below the threshold.'
+    trigger:
+    - platform: numeric_state
+      entity_id: sensor.snapper_ness_balance
+      below: 10
+    condition:
+    - condition: state
+      entity_id: input_boolean.snapper_notify_ness
+      state: 'on'
+    action:
+    - service: notify.notify
+      data:
+        title: "Snapper Low Balance"
+        message: "Ness Snapper card balance is below ${{ trigger.below | int }}."
+
