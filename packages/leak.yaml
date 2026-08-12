@@ -7,17 +7,150 @@ automation:
     trigger:
     - platform: state
       entity_id: binary_sensor.water_leak_detector_1_water_leak
-      from: 'off'
       to: 'on'
     - platform: state
       entity_id: binary_sensor.water_leak_detector_2_water_leak
-      from: 'off'
       to: 'on'
     action:
     - service: switch.turn_off
       target:
         entity_id: switch.hydro_pump
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
       data:
-        message: "Water Leak Detected!"
         title: "Water Leak"
+        message: "Water Leak Detected!"
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Water Leak"
+        message: "Water Leak Detected!"
+
+  - id: leak_detector_1_unavailable
+    alias: Leak Detector 1 Unavailable - Watchdog
+    description: 'Notify both phones when detector 1 stays unavailable/unknown for a sustained period.'
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.water_leak_detector_1_water_leak
+      to:
+      - 'unavailable'
+      - 'unknown'
+      for:
+        hours: 6
+    action:
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
+      data:
+        title: "Leak Detector Unavailable"
+        message: "Water Leak Detector 1 has been unavailable for 6+ hours."
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Leak Detector Unavailable"
+        message: "Water Leak Detector 1 has been unavailable for 6+ hours."
+
+  - id: leak_detector_2_unavailable
+    alias: Leak Detector 2 Unavailable - Watchdog
+    description: 'Notify both phones when detector 2 stays unavailable/unknown for a sustained period.'
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.water_leak_detector_2_water_leak
+      to:
+      - 'unavailable'
+      - 'unknown'
+      for:
+        hours: 6
+    action:
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
+      data:
+        title: "Leak Detector Unavailable"
+        message: "Water Leak Detector 2 has been unavailable for 6+ hours."
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Leak Detector Unavailable"
+        message: "Water Leak Detector 2 has been unavailable for 6+ hours."
+
+  - id: leak_detector_1_battery_low
+    alias: Leak Detector 1 Battery Low
+    description: 'Notify both phones when detector 1 battery is low.'
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.water_leak_detector_1_battery_low
+      to: 'on'
+    action:
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
+      data:
+        title: "Leak Detector Battery Low"
+        message: "Water Leak Detector 1 battery is low."
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Leak Detector Battery Low"
+        message: "Water Leak Detector 1 battery is low."
+
+  - id: leak_detector_2_battery_low
+    alias: Leak Detector 2 Battery Low
+    description: 'Notify both phones when detector 2 battery is low.'
+    trigger:
+    - platform: state
+      entity_id: binary_sensor.water_leak_detector_2_battery_low
+      to: 'on'
+    action:
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
+      data:
+        title: "Leak Detector Battery Low"
+        message: "Water Leak Detector 2 battery is low."
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Leak Detector Battery Low"
+        message: "Water Leak Detector 2 battery is low."
+
+alert:
+  water_leak_detector_1:
+    name: "Water Leak Detector 1"
+    entity_id: binary_sensor.water_leak_detector_1_water_leak
+    state: 'on'
+    repeat:
+    - 5
+    - 10
+    - 30
+    can_acknowledge: true
+    skip_first: false
+    title: "Water Leak - Detector 1"
+    message: "Water leak detected by Detector 1! Please investigate immediately."
+    done_message: "Water leak at Detector 1 has cleared."
+    notifiers:
+    - mobile_app_ben_s25
+    - mobile_app_vanessas_iphone
+
+  water_leak_detector_2:
+    name: "Water Leak Detector 2"
+    entity_id: binary_sensor.water_leak_detector_2_water_leak
+    state: 'on'
+    repeat:
+    - 5
+    - 10
+    - 30
+    can_acknowledge: true
+    skip_first: false
+    title: "Water Leak - Detector 2"
+    message: "Water leak detected by Detector 2! Please investigate immediately."
+    done_message: "Water leak at Detector 2 has cleared."
+    notifiers:
+    - mobile_app_ben_s25
+    - mobile_app_vanessas_iphone
