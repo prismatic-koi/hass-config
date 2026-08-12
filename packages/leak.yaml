@@ -28,9 +28,19 @@ automation:
         title: "Water Leak"
         message: "Water Leak Detected!"
 
+  # Watchdog threshold: these are sleepy Zigbee devices that report on
+  # event plus a periodic heartbeat roughly every 3 hours, going
+  # `unavailable` about an hour after each report — that is their normal
+  # resting state, not a fault. Measured over a live 72h window: detector 1's
+  # median unavailable stretch was 3.0h (7 stretches, longest 50.7h),
+  # detector 2's median was 3.0h (8 stretches, longest 3.1h). 12 hours is
+  # four consecutive missed heartbeats against that ~3.0h median — clearly
+  # abnormal, but loose enough that a healthy detector missing one heartbeat
+  # (Zigbee is lossy) does not trip it. Retune both the `for:` value below
+  # and this comment together if the measured heartbeat cadence changes.
   - id: leak_detector_1_unavailable
     alias: Leak Detector 1 Unavailable - Watchdog
-    description: 'Notify both phones when detector 1 stays unavailable/unknown for a sustained period.'
+    description: 'Notify both phones when detector 1 has not reported for a sustained period.'
     trigger:
     - platform: state
       entity_id: binary_sensor.water_leak_detector_1_water_leak
@@ -38,24 +48,24 @@ automation:
       - 'unavailable'
       - 'unknown'
       for:
-        hours: 6
+        hours: 12
     action:
     - action: notify.send_message
       target:
         entity_id: notify.ben_s25
       data:
-        title: "Leak Detector Unavailable"
-        message: "Water Leak Detector 1 has been unavailable for 6+ hours."
+        title: "Leak Detector - No Report"
+        message: "Water Leak Detector 1 has not reported in over 12 hours - check the battery."
     - action: notify.send_message
       target:
         entity_id: notify.vanessas_iphone
       data:
-        title: "Leak Detector Unavailable"
-        message: "Water Leak Detector 1 has been unavailable for 6+ hours."
+        title: "Leak Detector - No Report"
+        message: "Water Leak Detector 1 has not reported in over 12 hours - check the battery."
 
   - id: leak_detector_2_unavailable
     alias: Leak Detector 2 Unavailable - Watchdog
-    description: 'Notify both phones when detector 2 stays unavailable/unknown for a sustained period.'
+    description: 'Notify both phones when detector 2 has not reported for a sustained period.'
     trigger:
     - platform: state
       entity_id: binary_sensor.water_leak_detector_2_water_leak
@@ -63,20 +73,20 @@ automation:
       - 'unavailable'
       - 'unknown'
       for:
-        hours: 6
+        hours: 12
     action:
     - action: notify.send_message
       target:
         entity_id: notify.ben_s25
       data:
-        title: "Leak Detector Unavailable"
-        message: "Water Leak Detector 2 has been unavailable for 6+ hours."
+        title: "Leak Detector - No Report"
+        message: "Water Leak Detector 2 has not reported in over 12 hours - check the battery."
     - action: notify.send_message
       target:
         entity_id: notify.vanessas_iphone
       data:
-        title: "Leak Detector Unavailable"
-        message: "Water Leak Detector 2 has been unavailable for 6+ hours."
+        title: "Leak Detector - No Report"
+        message: "Water Leak Detector 2 has not reported in over 12 hours - check the battery."
 
   - id: leak_detector_1_battery_low
     alias: Leak Detector 1 Battery Low
