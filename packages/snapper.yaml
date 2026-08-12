@@ -80,59 +80,135 @@ automation:
   - id: snapper_low_balance_ben_work
     alias: Snapper Low Balance - Ben Work
     description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # A single state trigger, not numeric_state: numeric_state does not fire
+    # when the previous state was non-numeric, so a sensor returning from
+    # unavailable straight to a below-threshold value would raise no alert.
+    # These REST sensors go unavailable on every catchy.nz hiccup, so that
+    # gap matters here. The condition below does the actual crossing check.
     trigger:
-    - platform: numeric_state
+    - platform: state
       entity_id: sensor.snapper_ben_work_balance
-      below: 10
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ben_work
       state: 'on'
+    # Fire only on a genuine downward crossing: the new state is numeric and
+    # below threshold, and the old state was NOT already below threshold
+    # (i.e. old state is non-numeric/unavailable/unknown, or numeric and
+    # >= threshold). HA's `is_number` test (not Jinja's built-in `number`
+    # test, which is False for state strings like "9.93") and Jinja's
+    # short-circuiting `and`/`or` keep this from raising when either
+    # side is non-numeric — a template crash here is exactly the
+    # class of bug this automation exists to fix.
+    # A balance that stays below threshold for a week produces exactly one
+    # notification: the first drop, not every later state update.
+    - condition: template
+      value_template: >-
+        {{ trigger.to_state is not none and trigger.to_state.state is is_number
+           and (trigger.to_state.state | float) < threshold
+           and not (trigger.from_state is not none and trigger.from_state.state is is_number
+                    and (trigger.from_state.state | float) < threshold) }}
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
       data:
         title: "Snapper Low Balance"
-        # message templates the threshold off trigger.below rather than a
-        # second hardcoded literal, so it can't desync from the trigger above.
-        # Known cosmetic edge case: a manual run (Run button / automation.trigger)
-        # populates trigger with no below key, so trigger.below renders as 0 and
-        # the message reads "below $0" on a manual test only. Accepted; do not
-        # paper over with a default(), which would reintroduce the duplicate
-        # literal this template avoids. Applies to all three snapper low-balance
-        # automations; documented here only.
-        message: "Ben Work Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically no matter which state update triggered
+        # the crossing, and never depends on trigger.below (which is absent
+        # on a manual run).
+        message: "Ben Work Snapper card balance is below ${{ threshold }}."
 
   - id: snapper_low_balance_ben_personal
     alias: Snapper Low Balance - Ben Personal
     description: 'Notify Ben when the Snapper Ben Personal card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # A single state trigger, not numeric_state: numeric_state does not fire
+    # when the previous state was non-numeric, so a sensor returning from
+    # unavailable straight to a below-threshold value would raise no alert.
+    # These REST sensors go unavailable on every catchy.nz hiccup, so that
+    # gap matters here. The condition below does the actual crossing check.
     trigger:
-    - platform: numeric_state
+    - platform: state
       entity_id: sensor.snapper_ben_personal_balance
-      below: 10
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ben_personal
       state: 'on'
+    # Fire only on a genuine downward crossing: the new state is numeric and
+    # below threshold, and the old state was NOT already below threshold
+    # (i.e. old state is non-numeric/unavailable/unknown, or numeric and
+    # >= threshold). HA's `is_number` test (not Jinja's built-in `number`
+    # test, which is False for state strings like "9.93") and Jinja's
+    # short-circuiting `and`/`or` keep this from raising when either
+    # side is non-numeric — a template crash here is exactly the
+    # class of bug this automation exists to fix.
+    # A balance that stays below threshold for a week produces exactly one
+    # notification: the first drop, not every later state update.
+    - condition: template
+      value_template: >-
+        {{ trigger.to_state is not none and trigger.to_state.state is is_number
+           and (trigger.to_state.state | float) < threshold
+           and not (trigger.from_state is not none and trigger.from_state.state is is_number
+                    and (trigger.from_state.state | float) < threshold) }}
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
       data:
         title: "Snapper Low Balance"
-        message: "Ben Personal Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically no matter which state update triggered
+        # the crossing, and never depends on trigger.below (which is absent
+        # on a manual run).
+        message: "Ben Personal Snapper card balance is below ${{ threshold }}."
 
   - id: snapper_low_balance_ness
     alias: Snapper Low Balance - Ness
     description: 'Notify Ness when the Snapper Ness card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # A single state trigger, not numeric_state: numeric_state does not fire
+    # when the previous state was non-numeric, so a sensor returning from
+    # unavailable straight to a below-threshold value would raise no alert.
+    # These REST sensors go unavailable on every catchy.nz hiccup, so that
+    # gap matters here. The condition below does the actual crossing check.
     trigger:
-    - platform: numeric_state
+    - platform: state
       entity_id: sensor.snapper_ness_balance
-      below: 10
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ness
       state: 'on'
+    # Fire only on a genuine downward crossing: the new state is numeric and
+    # below threshold, and the old state was NOT already below threshold
+    # (i.e. old state is non-numeric/unavailable/unknown, or numeric and
+    # >= threshold). HA's `is_number` test (not Jinja's built-in `number`
+    # test, which is False for state strings like "9.93") and Jinja's
+    # short-circuiting `and`/`or` keep this from raising when either
+    # side is non-numeric — a template crash here is exactly the
+    # class of bug this automation exists to fix.
+    # A balance that stays below threshold for a week produces exactly one
+    # notification: the first drop, not every later state update.
+    - condition: template
+      value_template: >-
+        {{ trigger.to_state is not none and trigger.to_state.state is is_number
+           and (trigger.to_state.state | float) < threshold
+           and not (trigger.from_state is not none and trigger.from_state.state is is_number
+                    and (trigger.from_state.state | float) < threshold) }}
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
       data:
         title: "Snapper Low Balance"
-        message: "Ness Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically no matter which state update triggered
+        # the crossing, and never depends on trigger.below (which is absent
+        # on a manual run).
+        message: "Ness Snapper card balance is below ${{ threshold }}."
 
