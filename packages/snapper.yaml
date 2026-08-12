@@ -80,59 +80,147 @@ automation:
   - id: snapper_low_balance_ben_work
     alias: Snapper Low Balance - Ben Work
     description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # The numeric_state trigger below cannot read the `threshold` variable —
+    # HA does not accept an automation-level variable inside a trigger — so
+    # the literal 10 here and `threshold: 10` above must be kept in step by
+    # hand.
     trigger:
     - platform: numeric_state
       entity_id: sensor.snapper_ben_work_balance
       below: 10
+      id: crossed
+    - platform: time
+      at: "09:00:00"
+      id: daily_check
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ben_work
       state: 'on'
+    # Either the balance just crossed below the threshold, or this is the
+    # daily re-check and the balance is currently below it. The
+    # numeric_state condition is false (not an error) when the sensor is
+    # unavailable/unknown, so a bad sensor reading never triggers a
+    # notification.
+    - condition: or
+      conditions:
+      - condition: trigger
+        id: crossed
+      - condition: and
+        conditions:
+        - condition: trigger
+          id: daily_check
+        - condition: numeric_state
+          entity_id: sensor.snapper_ben_work_balance
+          below: 10
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
       data:
         title: "Snapper Low Balance"
-        # message templates the threshold off trigger.below rather than a
-        # second hardcoded literal, so it can't desync from the trigger above.
-        # Known cosmetic edge case: a manual run (Run button / automation.trigger)
-        # populates trigger with no below key, so trigger.below renders as 0 and
-        # the message reads "below $0" on a manual test only. Accepted; do not
-        # paper over with a default(), which would reintroduce the duplicate
-        # literal this template avoids. Applies to all three snapper low-balance
-        # automations; documented here only.
-        message: "Ben Work Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically whether triggered by the crossing or the
+        # daily re-check, and never depends on trigger.below (which is
+        # absent on a manual run).
+        message: "Ben Work Snapper card balance is below ${{ threshold }}."
 
   - id: snapper_low_balance_ben_personal
     alias: Snapper Low Balance - Ben Personal
     description: 'Notify Ben when the Snapper Ben Personal card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # The numeric_state trigger below cannot read the `threshold` variable —
+    # HA does not accept an automation-level variable inside a trigger — so
+    # the literal 10 here and `threshold: 10` above must be kept in step by
+    # hand.
     trigger:
     - platform: numeric_state
       entity_id: sensor.snapper_ben_personal_balance
       below: 10
+      id: crossed
+    - platform: time
+      at: "09:00:00"
+      id: daily_check
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ben_personal
       state: 'on'
+    # Either the balance just crossed below the threshold, or this is the
+    # daily re-check and the balance is currently below it. The
+    # numeric_state condition is false (not an error) when the sensor is
+    # unavailable/unknown, so a bad sensor reading never triggers a
+    # notification.
+    - condition: or
+      conditions:
+      - condition: trigger
+        id: crossed
+      - condition: and
+        conditions:
+        - condition: trigger
+          id: daily_check
+        - condition: numeric_state
+          entity_id: sensor.snapper_ben_personal_balance
+          below: 10
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
       data:
         title: "Snapper Low Balance"
-        message: "Ben Personal Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically whether triggered by the crossing or the
+        # daily re-check, and never depends on trigger.below (which is
+        # absent on a manual run).
+        message: "Ben Personal Snapper card balance is below ${{ threshold }}."
 
   - id: snapper_low_balance_ness
     alias: Snapper Low Balance - Ness
     description: 'Notify Ness when the Snapper Ness card balance drops below the threshold.'
+    variables:
+      threshold: 10
+    # The numeric_state trigger below cannot read the `threshold` variable —
+    # HA does not accept an automation-level variable inside a trigger — so
+    # the literal 10 here and `threshold: 10` above must be kept in step by
+    # hand.
     trigger:
     - platform: numeric_state
       entity_id: sensor.snapper_ness_balance
       below: 10
+      id: crossed
+    - platform: time
+      at: "09:00:00"
+      id: daily_check
     condition:
     - condition: state
       entity_id: input_boolean.snapper_notify_ness
       state: 'on'
+    # Either the balance just crossed below the threshold, or this is the
+    # daily re-check and the balance is currently below it. The
+    # numeric_state condition is false (not an error) when the sensor is
+    # unavailable/unknown, so a bad sensor reading never triggers a
+    # notification.
+    - condition: or
+      conditions:
+      - condition: trigger
+        id: crossed
+      - condition: and
+        conditions:
+        - condition: trigger
+          id: daily_check
+        - condition: numeric_state
+          entity_id: sensor.snapper_ness_balance
+          below: 10
     action:
-    - service: notify.notify
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
       data:
         title: "Snapper Low Balance"
-        message: "Ness Snapper card balance is below ${{ trigger.below | int }}."
+        # message templates the threshold off the `threshold` variable above,
+        # so it renders identically whether triggered by the crossing or the
+        # daily re-check, and never depends on trigger.below (which is
+        # absent on a manual run).
+        message: "Ness Snapper card balance is below ${{ threshold }}."
 
