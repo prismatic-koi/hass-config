@@ -62,23 +62,38 @@ automation:
     action:
       - service: light.turn_off
         target:
-          entity_id: "{{ lights }}"
+          entity_id: "{{ lights + brightlights }}"
+      - service: switch.turn_off
+        target:
+          entity_id: "{{ switches }}"
       - repeat:
           count: 3
           sequence:
-            - service: switch.turn_off
-              target:
-                entity_id: "{{ switches }}"
             - delay: "00:00:05"
+            - variables:
+                lights_on: >
+                  {{ (lights + brightlights) | select('is_state', 'on') | list }}
+                switches_on: >
+                  {{ switches | select('is_state', 'on') | list }}
+            - if:
+                - condition: template
+                  value_template: "{{ lights_on | length > 0 }}"
+              then:
+                - service: light.turn_off
+                  target:
+                    entity_id: "{{ lights_on }}"
+            - if:
+                - condition: template
+                  value_template: "{{ switches_on | length > 0 }}"
+              then:
+                - service: switch.turn_off
+                  target:
+                    entity_id: "{{ switches_on }}"
+          until:
             - condition: template
               value_template: >
-                {{
-                  states('switch.lounge_big_lamp') == 'off' and
-                  states('switch.lounge_small_lamp') == 'off'
-                }}
-      - service: light.turn_off
-        target:
-          entity_id: "{{ brightlights }}"
+                {{ (lights + brightlights + switches)
+                   | select('is_state', 'on') | list | length == 0 }}
       - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
         target:
           entity_id: input_boolean.ambient_lights_active
