@@ -67,7 +67,6 @@ automation:
         target:
           entity_id: "{{ switches }}"
       - repeat:
-          count: 3
           sequence:
             - delay: "00:00:05"
             - variables:
@@ -92,7 +91,8 @@ automation:
           until:
             - condition: template
               value_template: >
-                {{ (lights + brightlights + switches)
+                {{ repeat.index >= 3 or
+                   (lights + brightlights + switches)
                    | select('is_state', 'on') | list | length == 0 }}
       - service: input_boolean.turn_off # Set helper to OFF when this automation turns lights off
         target:
