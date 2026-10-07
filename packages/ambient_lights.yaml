@@ -40,6 +40,50 @@ automation:
       - service: input_boolean.turn_on # Set helper to ON when this automation turns lights on
         target:
           entity_id: input_boolean.ambient_lights_active
+      - repeat:
+          sequence:
+            - delay: "00:00:05"
+            - variables:
+                lights_wrong: >
+                  {{ lights | reject('is_state', 'on') | list }}
+                brightlights_wrong: >
+                  {{ brightlights | reject('is_state', 'on') | list }}
+                switches_wrong: >
+                  {{ switches | reject('is_state', 'on') | list }}
+            - if:
+                - condition: template
+                  value_template: "{{ lights_wrong | length > 0 }}"
+              then:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ lights_wrong }}"
+                  data:
+                    brightness_pct: 75
+                    transition: 60
+                    color_temp_kelvin: 2762
+            - if:
+                - condition: template
+                  value_template: "{{ brightlights_wrong | length > 0 }}"
+              then:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ brightlights_wrong }}"
+                  data:
+                    brightness_pct: 20
+                    transition: 2
+            - if:
+                - condition: template
+                  value_template: "{{ switches_wrong | length > 0 }}"
+              then:
+                - service: switch.turn_on
+                  target:
+                    entity_id: "{{ switches_wrong }}"
+          until:
+            - condition: template
+              value_template: >
+                {{ repeat.index >= 3 or
+                   (lights + brightlights + switches)
+                   | reject('is_state', 'on') | list | length == 0 }}
     variables:
       lights:
         - light.kitchen_lightstrip
