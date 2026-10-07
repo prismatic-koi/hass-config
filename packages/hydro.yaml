@@ -51,12 +51,15 @@ automation:
   # Smart switches are not always reliable. Every 5 minutes this automation reads the helper and
   # sends a command only to each device whose state differs from the helper. Devices that are
   # unavailable or unknown also get the command.
+  # The trigger runs at second 30, not second 0. Growlight On and Growlight Off run at second 0 of
+  # 5-minute boundaries. A run at second 0 collides with them and sends duplicate commands.
   - id: grow_light_state_correction
     alias: Grow Light State Correction
     description: Periodically corrects grow light devices that are in the wrong state
     trigger:
       - platform: time_pattern
         minutes: "/5"
+        seconds: 30
     condition: []
     variables:
       switches:
