@@ -1,0 +1,205 @@
+# Hydroponics
+
+input_boolean:
+  grow_lights_active:
+    name: "Grow Lights Active"
+    icon: mdi:flower
+
+input_datetime:
+  hydro_growlight_start:
+    name: "Start Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_growlight_stop:
+    name: "Stop Time"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_pump_start_1:
+    name: "Start Time 1"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+  hydro_pump_start_2:
+    name: "Start Time 2"
+    has_date: false
+    has_time: true
+    icon: mdi:alarm
+
+input_number:
+  hydro_pump_duration_1:
+    name: 'Stay on time'
+    min: 5
+    max: 120
+    step: 5
+    initial: 60
+    mode: box
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+  hydro_pump_duration_2:
+    name: 'Stay on time'
+    min: 5
+    max: 120
+    step: 5
+    initial: 60
+    mode: box
+    icon: mdi:timer-outline
+    unit_of_measurement: min
+
+automation:
+  # Smart switches are not always reliable. Every 5 minutes this automation reads the helper and
+  # sends a command only to each device whose state differs from the helper. Devices that are
+  # unavailable or unknown also get the command.
+  # The trigger runs at second 30, not second 0. Growlight On and Growlight Off run at second 0 of
+  # 5-minute boundaries. A run at second 0 collides with them and sends duplicate commands.
+  - id: grow_light_state_correction
+    alias: Grow Light State Correction
+    description: Periodically corrects grow light devices that are in the wrong state
+    trigger:
+      - platform: time_pattern
+        minutes: "/5"
+        seconds: 30
+    condition: []
+    variables:
+      switches:
+        - switch.cactus_growlight
+        - switch.large_growlight
+        - switch.nft_growlight
+        - switch.light_tower
+        - switch.mini_light_tower
+      lights:
+        - light.plantstand_left
+        - light.plantstand_right
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.grow_lights_active
+                state: 'on'
+            sequence:
+              - variables:
+                  wrong_switches: "{{ switches | reject('is_state', 'on') | list }}"
+                  wrong_lights: "{{ lights | reject('is_state', 'on') | list }}"
+              - if:
+                  - condition: template
+                    value_template: "{{ wrong_switches | count > 0 }}"
+                then:
+                  - service: switch.turn_on
+                    target:
+                      entity_id: "{{ wrong_switches }}"
+              - if:
+                  - condition: template
+                    value_template: "{{ wrong_lights | count > 0 }}"
+                then:
+                  - service: light.turn_on
+                    target:
+                      entity_id: "{{ wrong_lights }}"
+                    data:
+                      brightness_pct: 100
+                      transition: 0
+
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.grow_lights_active
+                state: 'off'
+            sequence:
+              - variables:
+                  wrong_switches: "{{ switches | reject('is_state', 'off') | list }}"
+                  wrong_lights: "{{ lights | reject('is_state', 'off') | list }}"
+              - if:
+                  - condition: template
+                    value_template: "{{ wrong_switches | count > 0 }}"
+                then:
+                  - service: switch.turn_off
+                    target:
+                      entity_id: "{{ wrong_switches }}"
+              - if:
+                  - condition: template
+                    value_template: "{{ wrong_lights | count > 0 }}"
+                then:
+                  - service: light.turn_off
+                    target:
+                      entity_id: "{{ wrong_lights }}"
+
+  - id: hydro_growlight_off
+    alias: Growlight Off
+    description: Turn lights off at specific time
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_growlight_stop
+    action:
+    - service: switch.turn_off
+      target:
+        entity_id: '{{ switches }}'
+    - service: light.turn_off
+      target:
+        entity_id: light.office_plant_stand
+    - service: input_boolean.turn_off # Set helper to OFF
+      target:
+        entity_id: input_boolean.grow_lights_active
+    variables:
+      switches:
+      - switch.cactus_growlight
+      - switch.large_growlight
+      - switch.nft_growlight
+      - switch.light_tower
+      - switch.mini_light_tower
+
+  - id: hydro_growlight_timer #old id, kept for compatibility with ui
+    alias: Growlight On
+    description: Turn lights on at specific time
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_growlight_start
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: '{{ switches }}'
+    - service: light.turn_on
+      target:
+        entity_id: light.office_plant_stand
+      data:
+        brightness_pct: 100
+        color_temp_kelvin: 6535
+        transition: 5
+    - service: input_boolean.turn_on # Set helper to ON
+      target:
+        entity_id: input_boolean.grow_lights_active
+    variables:
+      switches:
+      - switch.cactus_growlight
+      - switch.large_growlight
+      - switch.nft_growlight
+      - switch.light_tower
+      - switch.mini_light_tower
+
+  - id: hydro_pump_timer_1
+    alias: Hydro Pump Timer 1
+    description: Turn pump on at specific time for duration
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_pump_start_1
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.hydro_pump
+    - delay: '{{ states(''input_number.hydro_pump_duration_1'') | int(0) * 60 }}'
+    - service: switch.turn_off
+      target:
+        entity_id: switch.hydro_pump
+  - id: hydro_pump_timer_2
+    alias: Hydro Pump Timer 2
+    description: Turn pump on at specific time for duration
+    trigger:
+    - platform: time
+      at: input_datetime.hydro_pump_start_2
+    action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.hydro_pump
+    - delay: '{{ states(''input_number.hydro_pump_duration_2'') | int(0) * 60 }}'
+    - service: switch.turn_off
+      target:
+        entity_id: switch.hydro_pump
+
