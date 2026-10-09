@@ -29,6 +29,27 @@ automation:
       data:
         brightness_pct: 75
         transition: 60
+    - repeat:
+        sequence:
+        - delay: '00:00:05'
+        - variables:
+            wrong: >
+              {{ entities | reject('is_state', 'on') | list }}
+        - if:
+          - condition: template
+            value_template: '{{ wrong | length > 0 }}'
+          then:
+          - service: light.turn_on
+            target:
+              entity_id: '{{ wrong }}'
+            data:
+              brightness_pct: 75
+              transition: 60
+        until:
+        - condition: template
+          value_template: >
+            {{ repeat.index >= 3 or
+               entities | reject('is_state', 'on') | list | length == 0 }}
 
   - id: id_nightlight_off
     alias: Nightlight off
@@ -43,4 +64,21 @@ automation:
     - service: light.turn_off
       target:
         entity_id: '{{ entities }}'
-
+    - repeat:
+        sequence:
+        - delay: '00:00:05'
+        - variables:
+            wrong: >
+              {{ entities | select('is_state', 'on') | list }}
+        - if:
+          - condition: template
+            value_template: '{{ wrong | length > 0 }}'
+          then:
+          - service: light.turn_off
+            target:
+              entity_id: '{{ wrong }}'
+        until:
+        - condition: template
+          value_template: >
+            {{ repeat.index >= 3 or
+               entities | select('is_state', 'on') | list | length == 0 }}
