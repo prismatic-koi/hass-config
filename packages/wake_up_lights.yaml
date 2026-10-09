@@ -132,9 +132,51 @@ automation:
         brightness_pct: 100
         color_temp_kelvin: 2500
         transition: '{{ transition }}'
+    - repeat:
+        sequence:
+        - delay: '00:00:05'
+        - variables:
+            wrong: >
+              {{ [entities] | reject('is_state', 'on') | list }}
+        - if:
+          - condition: template
+            value_template: '{{ wrong | length > 0 }}'
+          then:
+          - service: light.turn_on
+            target:
+              entity_id: '{{ wrong }}'
+            data:
+              brightness_pct: 100
+              color_temp_kelvin: 2500
+              transition: '{{ transition }}'
+        until:
+        - condition: template
+          value_template: >
+            {{ repeat.index >= 3 or
+               [entities] | reject('is_state', 'on') | list | length == 0 }}
     - delay:
         minutes: '{{ [(states(''input_number.wake_up_lights_fade_minutes'') | int(0)) +
           (states(''input_number.wake_up_lights_minutes'') | int(0)), 1] | max }}'
+    - delay:
+        seconds: 15
     - service: light.turn_off
       target:
         entity_id: '{{ entities }}'
+    - repeat:
+        sequence:
+        - delay: '00:00:05'
+        - variables:
+            wrong: >
+              {{ [entities] | select('is_state', 'on') | list }}
+        - if:
+          - condition: template
+            value_template: '{{ wrong | length > 0 }}'
+          then:
+          - service: light.turn_off
+            target:
+              entity_id: '{{ wrong }}'
+        until:
+        - condition: template
+          value_template: >
+            {{ repeat.index >= 3 or
+               [entities] | select('is_state', 'on') | list | length == 0 }}
