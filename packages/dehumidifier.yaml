@@ -1,0 +1,74 @@
+# Dehumidifier
+
+input_boolean:
+  dehumidifier_notify:
+    name: "Dehumidifier Standby Notify"
+    icon: mdi:bell-ring
+  # State latch, not a user switch. "Running, then standby" needs memory that
+  # outlives the 10 minute gap between the two conditions and survives a
+  # restart. trigger.from_state holds only the previous reading, and an
+  # input_boolean restores its state on restart. The run automation sets it,
+  # the standby automation clears it, so one run gives exactly one
+  # notification. Do not toggle it by hand.
+  dehumidifier_running:
+    name: "Dehumidifier Running Latch"
+    icon: mdi:air-humidifier
+
+automation:
+  - id: dehumidifier_running_detected
+    alias: Dehumidifier Running Detected
+    description: 'Set the running latch when power stays above 150 W for 10 minutes.'
+    # Template trigger, not numeric_state: numeric_state does not fire when the
+    # previous state was non-numeric, so a return from unavailable straight to
+    # a running value would be missed. is_number makes unavailable and unknown
+    # evaluate false, which also resets the 10 minute timer.
+    trigger:
+    - platform: template
+      value_template: >-
+        {{ states('sensor.dehumidifier_power') is is_number
+           and states('sensor.dehumidifier_power') | float > 150 }}
+      for:
+        minutes: 10
+    action:
+    - action: input_boolean.turn_on
+      target:
+        entity_id: input_boolean.dehumidifier_running
+
+  - id: dehumidifier_standby_notify
+    alias: Dehumidifier Standby Notify
+    description: 'Notify both phones when the dehumidifier goes from running to standby.'
+    # is_number keeps unavailable and unknown from counting as below 5 W.
+    # A template trigger does not fire for a value that is already true at
+    # startup, so a restart alone sends nothing.
+    trigger:
+    - platform: template
+      value_template: >-
+        {{ states('sensor.dehumidifier_power') is is_number
+           and states('sensor.dehumidifier_power') | float < 5 }}
+      for:
+        minutes: 2
+    condition:
+    - condition: state
+      entity_id: input_boolean.dehumidifier_running
+      state: 'on'
+    action:
+    # Clear the latch first, even when notifications are off, so a later
+    # re-enable cannot release a stale notification.
+    - action: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.dehumidifier_running
+    - condition: state
+      entity_id: input_boolean.dehumidifier_notify
+      state: 'on'
+    - action: notify.send_message
+      target:
+        entity_id: notify.ben_s25
+      data:
+        title: "Dehumidifier"
+        message: "Dehumidifier has entered standby."
+    - action: notify.send_message
+      target:
+        entity_id: notify.vanessas_iphone
+      data:
+        title: "Dehumidifier"
+        message: "Dehumidifier has entered standby."
