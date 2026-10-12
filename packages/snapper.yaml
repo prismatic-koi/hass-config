@@ -154,7 +154,7 @@ automation:
           default:
           - if:
             - condition: template
-              value_template: "{{ as_timestamp(states(repeat.item.start), 0) < 100000000 }}"
+              value_template: "{{ (state_attr(repeat.item.start, 'timestamp') | float(0)) < 100000000 }}"
             then:
             - action: input_datetime.set_datetime
               target:
@@ -165,7 +165,7 @@ automation:
             - if:
               - condition: template
                 value_template: >-
-                  {{ now().timestamp() - as_timestamp(states(repeat.item.start), 0) >= 172800 }}
+                  {{ now().timestamp() - (state_attr(repeat.item.start, 'timestamp') | float(0)) >= 172800 }}
               - condition: state
                 entity_id: "{{ repeat.item.latch }}"
                 state: 'off'
