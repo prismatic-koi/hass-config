@@ -1,5 +1,19 @@
 # Snapper
 
+input_datetime:
+  snapper_ben_work_outage_start:
+    name: "Snapper Ben Work Outage Start"
+    has_date: true
+    has_time: true
+  snapper_ben_personal_outage_start:
+    name: "Snapper Ben Personal Outage Start"
+    has_date: true
+    has_time: true
+  snapper_ness_outage_start:
+    name: "Snapper Ness Outage Start"
+    has_date: true
+    has_time: true
+
 input_boolean:
   snapper_notify_ben_work:
     name: "Snapper Ben Work Low Balance Notify"
@@ -10,10 +24,21 @@ input_boolean:
   snapper_notify_ness:
     name: "Snapper Ness Low Balance Notify"
     icon: mdi:bell-ring
+  snapper_ben_work_outage_alerted:
+    name: "Snapper Ben Work Outage Alerted Latch"
+    icon: mdi:alert-circle-outline
+  snapper_ben_personal_outage_alerted:
+    name: "Snapper Ben Personal Outage Alerted Latch"
+    icon: mdi:alert-circle-outline
+  snapper_ness_outage_alerted:
+    name: "Snapper Ness Outage Alerted Latch"
+    icon: mdi:alert-circle-outline
 
 # Snapper card balances via catchy.nz (unofficial free third-party aggregator).
 # catchy.nz is not an official Snapper API and can stop working without
-# notice. This risk is accepted; do not harden against it.
+# notice. The low-balance automations are not hardened against it, but the
+# "Snapper Balance Check Failure" automation below alerts Ben when a card has
+# had no numeric balance for 48 hours.
 #
 # YAML's !secret tag can only replace a whole scalar value, not part of a
 # string. So the full JSON body for each card
@@ -76,6 +101,84 @@ rest:
         value_template: "{{ (value_json.currentBalanceCents / 100) | round(2) }}"
 
 automation:
+
+  # No user switch: always on. The outage start lives in an input_datetime,
+  # which restores on restart, so a restart cannot reset the 48 hour clock
+  # the way a trigger `for:` timer would. The hourly pattern re-checks the
+  # persisted start, so the alert is late by at most 1 hour. A start epoch
+  # (year 1970) means "no outage". The failure signal is a non-numeric state,
+  # not an unchanged state: a REST sensor with the same balance fires nothing.
+  - id: snapper_balance_check_failure
+    alias: Snapper Balance Check Failure
+    description: 'Notify Ben when a Snapper balance sensor has been non-numeric for 48 hours.'
+    mode: queued
+    trigger:
+    - platform: time_pattern
+      minutes: 0
+    - platform: homeassistant
+      event: start
+    - platform: state
+      entity_id:
+      - sensor.snapper_ben_work_balance
+      - sensor.snapper_ben_personal_balance
+      - sensor.snapper_ness_balance
+    action:
+    - repeat:
+        for_each:
+        - sensor: sensor.snapper_ben_work_balance
+          start: input_datetime.snapper_ben_work_outage_start
+          latch: input_boolean.snapper_ben_work_outage_alerted
+          name: Ben Work
+        - sensor: sensor.snapper_ben_personal_balance
+          start: input_datetime.snapper_ben_personal_outage_start
+          latch: input_boolean.snapper_ben_personal_outage_alerted
+          name: Ben Personal
+        - sensor: sensor.snapper_ness_balance
+          start: input_datetime.snapper_ness_outage_start
+          latch: input_boolean.snapper_ness_outage_alerted
+          name: Ness
+        sequence:
+        - choose:
+          - conditions:
+            - condition: template
+              value_template: "{{ states(repeat.item.sensor) is is_number }}"
+            sequence:
+            - action: input_datetime.set_datetime
+              target:
+                entity_id: "{{ repeat.item.start }}"
+              data:
+                timestamp: 0
+            - action: input_boolean.turn_off
+              target:
+                entity_id: "{{ repeat.item.latch }}"
+          default:
+          - if:
+            - condition: template
+              value_template: "{{ (state_attr(repeat.item.start, 'timestamp') | float(0)) < 100000000 }}"
+            then:
+            - action: input_datetime.set_datetime
+              target:
+                entity_id: "{{ repeat.item.start }}"
+              data:
+                timestamp: "{{ now().timestamp() }}"
+            else:
+            - if:
+              - condition: template
+                value_template: >-
+                  {{ now().timestamp() - (state_attr(repeat.item.start, 'timestamp') | float(0)) >= 172800 }}
+              - condition: state
+                entity_id: "{{ repeat.item.latch }}"
+                state: 'off'
+              then:
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: "{{ repeat.item.latch }}"
+              - action: notify.send_message
+                target:
+                  entity_id: notify.ben_s25
+                data:
+                  title: "Snapper Balance Check Failure"
+                  message: "{{ repeat.item.name }} Snapper card has had no balance reading for 48 hours. catchy.nz may have changed its API."
   - id: snapper_low_balance_ben_work
     alias: Snapper Low Balance - Ben Work
     description: 'Notify Ben when the Snapper Ben Work card balance drops below the threshold.'
