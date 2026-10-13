@@ -166,9 +166,8 @@ automation:
               - condition: template
                 value_template: >-
                   {{ now().timestamp() - (state_attr(repeat.item.start, 'timestamp') | float(0)) >= 172800 }}
-              - condition: state
-                entity_id: "{{ repeat.item.latch }}"
-                state: 'off'
+              - condition: template
+                value_template: "{{ is_state(repeat.item.latch, 'off') }}"
               then:
               - action: input_boolean.turn_on
                 target:
